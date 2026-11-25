@@ -431,7 +431,7 @@ create index on public.audit_log (entity, entity_id);
 
 create table public.prehire_invites (
   id uuid primary key default gen_random_uuid(),
-  token text not null unique default encode(gen_random_bytes(24), 'hex'),
+  token text not null unique default encode(extensions.gen_random_bytes(24), 'hex'),
   candidate_name text not null,
   candidate_email text,
   created_by uuid references public.profiles(id) on delete set null,
@@ -448,7 +448,7 @@ alter table public.roleplay_sessions
 
 -- ---------------------------------------------------------------- updated_at
 create or replace function public.touch_updated_at() returns trigger
-language plpgsql as $$
+language plpgsql set search_path = public as $$
 begin
   new.updated_at := now();
   return new;
