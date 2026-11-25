@@ -1,0 +1,38 @@
+-- Product seed: PLACEHOLDER data taken from jdfoods.ph listings. verified = false on every row.
+-- Prices marked "~" on the website are approximate. Unknown fields stay 'TODO'. An admin must verify each product.
+
+insert into public.products (id, brand, line, name, category, sizes, price_php, use_cases, target_customers, selling_points, lesson_id, verified) values
+('14000000-0000-4000-8000-000000000001', 'ThyChef', 'Flavored Powders', 'ThyChef Cheese Flavored Powder', 'Powder', '["1 kg"]', null,
+  'Toss on fries, chicken, popcorn and chips.', 'Fries and chicken carts, snack kiosks, popcorn resellers.', 'Lets stalls add a flavor option from one base product; consistent taste. TODO: verify.',
+  '13000000-0000-4000-8000-000000000202', false),
+('14000000-0000-4000-8000-000000000002', 'ThyChef', 'Flavored Powders', 'ThyChef Barbecue Flavored Powder', 'Powder', '["1 kg"]', null,
+  'Toss on fries, chicken, popcorn and chips.', 'Fries and chicken carts, snack kiosks, popcorn resellers.', 'TODO', '13000000-0000-4000-8000-000000000202', false),
+('14000000-0000-4000-8000-000000000003', 'ThyChef', 'Flavored Powders', 'ThyChef Hot & Spicy Flavored Powder', 'Powder', '["1 kg"]', null,
+  'Toss on fries, chicken, popcorn and chips.', 'Fries and chicken carts, snack kiosks.', 'TODO', '13000000-0000-4000-8000-000000000202', false),
+('14000000-0000-4000-8000-000000000004', 'ThyChef', 'Flavored Powders', 'ThyChef Salted Egg Flavored Powder', 'Powder', '["1 kg"]', null,
+  'Toss on fries, chicken skin, chips.', 'Snack kiosks, chicken stalls.', 'TODO', '13000000-0000-4000-8000-000000000202', false),
+('14000000-0000-4000-8000-000000000005', 'ThyChef', 'Flavored Powders', 'ThyChef Ghost Chili Flavored Powder', 'Powder', '["1 kg"]', null,
+  'Extra-hot flavor for fries, chicken and snacks.', 'Snack kiosks targeting spice lovers.', 'TODO', '13000000-0000-4000-8000-000000000202', false),
+('14000000-0000-4000-8000-000000000006', 'ThyChef', 'Marinade Powders', 'ThyChef Marinade Powder', 'Powder', '[]', null,
+  'Marinating chicken and pork before cooking.', 'Fried chicken stalls, carinderias, restaurants, cafeterias.', 'TODO', '13000000-0000-4000-8000-000000000203', false),
+('14000000-0000-4000-8000-000000000007', 'ThyChef', 'Breading Mix Powders', 'ThyChef Breading Mix Powder', 'Powder', '[]', 450,
+  'Coating for fried chicken, fish and vegetables.', 'Fried chicken stalls and franchises, restaurants, cafeterias.', 'Consistent crunch across cooks; less prep. TODO: verify.', '13000000-0000-4000-8000-000000000203', false),
+('14000000-0000-4000-8000-000000000008', 'ThyChef', 'Soup Powders', 'ThyChef Chicken Soup Powder', 'Powder', '[]', null,
+  'Soup base for cafeterias, carinderias, noodle houses.', 'Cafeterias, carinderias, noodle houses.', 'TODO', '13000000-0000-4000-8000-000000000204', false),
+('14000000-0000-4000-8000-000000000009', 'ThyChef', 'Soup Powders', 'ThyChef Seafood Soup Powder', 'Powder', '[]', null,
+  'Soup base.', 'Cafeterias, carinderias, noodle houses.', 'TODO', '13000000-0000-4000-8000-000000000204', false),
+('14000000-0000-4000-8000-000000000010', 'ThyChef', 'Soup Powders', 'ThyChef Noodle Soup Powder', 'Powder', '[]', null,
+  'Noodle soup base.', 'Noodle houses, cafeterias.', 'TODO', '13000000-0000-4000-8000-000000000204', false),
+('14000000-0000-4000-8000-000000000011', 'ThyChef', 'Dipping Cheese Powders', 'ThyChef Dipping Cheese Powder', 'Powder', '[]', null,
+  'Cheese dip for fries, nachos and chicken.', 'Snack kiosks, fries and nachos carts, cafés.', 'TODO', '13000000-0000-4000-8000-000000000204', false),
+('14000000-0000-4000-8000-000000000012', 'Arkadia', 'Premium Syrups', 'Arkadia Premium Syrup', 'Syrup', '[]', 495,
+  'Flavoring for coffee, milk tea, fruit tea and desserts.', 'Milk tea shops, cafés, coffee kiosks.', 'TODO', '13000000-0000-4000-8000-000000000205', false),
+('14000000-0000-4000-8000-000000000013', 'Arkadia', 'Chai', 'Arkadia Chai', 'Tea', '[]', null,
+  'Chai lattes, hot and iced.', 'Cafés, milk tea shops.', 'TODO', '13000000-0000-4000-8000-000000000205', false),
+('14000000-0000-4000-8000-000000000014', 'Arkadia', 'Tea', 'Arkadia Pyramid Tea Bags', 'Tea', '[]', null,
+  'Premium hot and iced tea.', 'Cafés, restaurants.', 'TODO', '13000000-0000-4000-8000-000000000205', false),
+('14000000-0000-4000-8000-000000000015', 'JD Foods', 'Sauces', 'All Purpose Chili Garlic', 'Sauce', '["120 g"]', 150,
+  'Condiment for siomai, dumplings, noodles; cooking ingredient.', 'Carinderias, siomai stalls, noodle houses, home cooks, resellers.', 'TODO', '13000000-0000-4000-8000-000000000206', false),
+('14000000-0000-4000-8000-000000000016', 'JD Foods', 'Business Programs', 'Business Package', 'Package', '[]', 26728,
+  'Starter bundle for aspiring food entrepreneurs.', 'Aspiring food entrepreneurs, resellers.', 'TODO: package contents and margins.', '13000000-0000-4000-8000-000000000104', false)
+on conflict (id) do nothing;

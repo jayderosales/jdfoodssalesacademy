@@ -1,0 +1,88 @@
+@import "tailwindcss";
+
+/*
+ * Brand colors are CSS variables so the owner can change them in Settings.
+ * The root layout injects overrides from app_settings at request time.
+ */
+:root {
+  --brand-primary: #c8102e; /* warm red */
+  --brand-secondary: #f26b1d; /* orange */
+  --brand-accent: #ffc72c; /* yellow */
+  --background: #fffaf5;
+  --foreground: #1f1a17;
+  --muted: #f4ece4;
+  --muted-foreground: #6b5f57;
+  --border: #e8dcd1;
+  --card: #ffffff;
+  --danger: #b42318;
+  --success: #067647;
+}
+
+@theme inline {
+  --color-brand: var(--brand-primary);
+  --color-brand-2: var(--brand-secondary);
+  --color-brand-3: var(--brand-accent);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
+  --color-card: var(--card);
+  --color-danger: var(--danger);
+  --color-success: var(--success);
+  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+}
+
+*,
+::before,
+::after {
+  border-color: var(--border);
+}
+
+/* Rendered lesson HTML and the editor share these styles. */
+.lesson-content {
+  line-height: 1.65;
+  font-size: 1rem;
+  overflow-wrap: anywhere;
+}
+.lesson-content > * + * { margin-top: 0.85em; }
+.lesson-content h2 { font-size: 1.35rem; font-weight: 700; margin-top: 1.4em; }
+.lesson-content h3 { font-size: 1.1rem; font-weight: 700; margin-top: 1.2em; }
+.lesson-content ul { list-style: disc; padding-left: 1.4em; }
+.lesson-content ol { list-style: decimal; padding-left: 1.4em; }
+.lesson-content li + li { margin-top: 0.3em; }
+.lesson-content a { color: var(--brand-primary); text-decoration: underline; }
+.lesson-content blockquote {
+  border-left: 4px solid var(--brand-secondary);
+  background: var(--muted);
+  padding: 0.6em 0.9em;
+  border-radius: 0 0.5rem 0.5rem 0;
+}
+.lesson-content hr { border-top: 1px solid var(--border); margin: 1.5em 0; }
+.lesson-content img { max-width: 100%; height: auto; border-radius: 0.5rem; }
+.lesson-content code { background: var(--muted); padding: 0.1em 0.3em; border-radius: 0.25rem; font-size: 0.9em; }
+.lesson-content table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+.lesson-content th, .lesson-content td { border: 1px solid var(--border); padding: 0.4em 0.6em; text-align: left; }
+.lesson-content div[data-youtube-video] iframe, .lesson-content iframe {
+  width: 100%; aspect-ratio: 16 / 9; height: auto; border-radius: 0.5rem; border: 0;
+}
+.lesson-content .todo, .lesson-content mark {
+  background: color-mix(in srgb, var(--brand-accent) 35%, transparent);
+  padding: 0 0.2em;
+  border-radius: 0.2rem;
+}
+
+:focus-visible {
+  outline: 2px solid var(--brand-secondary);
+  outline-offset: 2px;
+}

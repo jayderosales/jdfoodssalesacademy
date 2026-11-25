@@ -1,0 +1,20 @@
+# Minimal Supabase CLI config. Used for `npx supabase link` / `npx supabase db push`
+# (and `npx supabase start` if Docker is installed for a fully local database).
+project_id = "jdfoods-sales-academy"
+
+[db]
+major_version = 15
+
+[db.seed]
+enabled = true
+sql_paths = ["./seed.sql", "./seed_content_1_lessons.sql", "./seed_content_2_products.sql", "./seed_content_3_quizzes.sql", "./seed_content_4_scenarios.sql"]
+
+[auth]
+site_url = "http://localhost:3000"
+additional_redirect_urls = ["http://localhost:3000/auth/callback"]
+# Invite-only: accounts are created by the owner, not by public sign-up.
+enable_signup = false
+
+[auth.email]
+enable_signup = false
+enable_confirmations = false
