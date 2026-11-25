@@ -17,7 +17,7 @@ const SUPABASE_STUBS = `
   create schema extensions;
   create extension pgcrypto schema extensions;
   create schema auth;
-  create table auth.users (id uuid primary key, email text, raw_app_meta_data jsonb not null default '{}', raw_user_meta_data jsonb not null default '{}');
+  create table auth.users (id uuid primary key, email text, raw_app_meta_data jsonb not null default '{}', raw_user_meta_data jsonb not null default '{}', invited_at timestamptz);
   create function auth.uid() returns uuid language sql stable as $$ select nullif(current_setting('request.jwt.claim.sub', true), '')::uuid $$;
   create schema storage;
   create table storage.buckets (id text primary key, name text, public boolean);
@@ -225,6 +225,59 @@ describe("owner", () => {
   });
   it("cannot fake an employee's consent", async () => {
     await expect(as(ids.owner, `update public.profiles set consent_at = now() where id = $1`, [ids.manager])).rejects.toThrow(/consent/);
+  });
+});
+
+describe("sign-up links", () => {
+  const status = async (id: string) =>
+    (await db.query<{ status: string; role: string; team_id: string | null; full_name: string }>(`select status, role, team_id, full_name from public.profiles where id = $1`, [id])).rows[0];
+  let token = "";
+
+  it("a manager can create a link for their own team, not another team", async () => {
+    const rows = await as<{ token: string }>(ids.manager, `insert into public.signup_links (team_id, created_by, max_uses) values ($1, $2, 1) returning token`, [teamA, ids.manager]);
+    token = rows[0].token;
+    expect(token).toMatch(/^[0-9a-f]{36}$/);
+    await expect(
+      as(ids.manager, `insert into public.signup_links (team_id, created_by) values ($1, $2)`, [teamB, ids.manager]),
+    ).rejects.toThrow(/row-level security/);
+  });
+
+  it("reps cannot see links", async () => {
+    expect(await as(ids.rep1, `select * from public.signup_links`)).toEqual([]);
+  });
+
+  it("anonymous visitors can check a link without reading the table", async () => {
+    const rows = await db.transaction(async (tx) => {
+      await tx.exec(`set local role anon`);
+      return (await tx.query<{ team_name: string; valid: boolean }>(`select * from public.signup_link_info($1)`, [token])).rows;
+    });
+    expect(rows).toEqual([{ team_name: "Sales Team A", valid: true }]);
+  });
+
+  it("signing up with a valid link makes an active rep on that team and uses up the link", async () => {
+    const id = "00000000-0000-0000-0000-0000000000a1";
+    await db.query(`insert into auth.users (id, email, raw_user_meta_data) values ($1, 'new1@x.ph', $2)`, [id, JSON.stringify({ signup_token: token, full_name: "Bea Cruz" })]);
+    expect(await status(id)).toEqual({ status: "active", role: "rep", team_id: teamA, full_name: "Bea Cruz" });
+    expect((await db.query<{ uses: number }>(`select uses from public.signup_links where token = $1`, [token])).rows[0].uses).toBe(1);
+  });
+
+  it("a used-up link no longer grants access (pending instead)", async () => {
+    const id = "00000000-0000-0000-0000-0000000000a2";
+    await db.query(`insert into auth.users (id, email, raw_user_meta_data) values ($1, 'new2@x.ph', $2)`, [id, JSON.stringify({ signup_token: token })]);
+    expect((await status(id)).status).toBe("inactive");
+  });
+
+  it("signing up without a token, or trying to claim a role, gives a pending rep with no access", async () => {
+    const id = "00000000-0000-0000-0000-0000000000a3";
+    await db.query(`insert into auth.users (id, email, raw_user_meta_data) values ($1, 'sneaky@x.ph', $2)`, [id, JSON.stringify({ role: "owner", team_id: teamB })]);
+    expect(await status(id)).toEqual({ status: "inactive", role: "rep", team_id: null, full_name: "" });
+    expect(await as(id, `select * from public.lessons`)).toEqual([]);
+  });
+
+  it("users invited by the owner are still created active", async () => {
+    const id = "00000000-0000-0000-0000-0000000000a4";
+    await db.query(`insert into auth.users (id, email, invited_at) values ($1, 'invited@x.ph', now())`, [id]);
+    expect((await status(id)).status).toBe("active");
   });
 });
 

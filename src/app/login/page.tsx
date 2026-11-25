@@ -7,7 +7,7 @@ import { LoginForm } from "./login-form";
 export const metadata = { title: "Sign in" };
 
 const ERRORS: Record<string, string> = {
-  inactive: "This account is no longer active. Please contact your manager.",
+  inactive: "This account isn't active. If you just signed up, your manager needs to approve your account first.",
   link: "That sign-in link is invalid or has expired. Please request a new one.",
 };
 

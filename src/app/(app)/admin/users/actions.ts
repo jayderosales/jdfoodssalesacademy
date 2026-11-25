@@ -152,11 +152,16 @@ export async function reactivateUser(_: FormState, form: FormData): Promise<Form
     .update({ status: "active", exit_date: null, exit_reason: null, exit_stage_level: null })
     .eq("id", id);
   if (error) return { error: error.message };
-  const admin = createAdminClient();
-  await admin.auth.admin.updateUserById(id, { ban_duration: "none" });
+  // Lift the sign-in block added on deactivation. Self sign-ups awaiting approval were never blocked,
+  // so this step is skipped when the server key isn't configured.
+  if (!serviceKeyMissing()) {
+    await createAdminClient().auth.admin.updateUserById(id, { ban_duration: "none" });
+  } else if (form.get("pending") !== "1") {
+    return { error: `Reactivated in the app, but sign-in is still blocked. ${SERVICE_KEY_HELP}` };
+  }
   revalidatePath(`/admin/users/${id}`);
   revalidatePath("/admin/users");
-  return { message: "User reactivated." };
+  return { message: form.get("pending") === "1" ? "Approved. They can sign in now." : "User reactivated." };
 }
 
 export async function sendReset(_: FormState, form: FormData): Promise<FormState> {

@@ -2,7 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { createServerClient } from "@supabase/ssr";
 
 // /demo is the sample-data preview; its layout returns 404 in production unless ENABLE_DEMO=1.
-const PUBLIC_PATHS = ["/login", "/auth", "/prehire", "/demo"];
+const PUBLIC_PATHS = ["/login", "/auth", "/prehire", "/demo", "/join"];
 
 /** Refreshes the Supabase session cookie and sends signed-out visitors to /login. */
 export async function middleware(request: NextRequest) {

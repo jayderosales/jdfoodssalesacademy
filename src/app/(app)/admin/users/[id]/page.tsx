@@ -150,6 +150,18 @@ export default async function UserPage({ params, searchParams }: { params: Promi
                   </ActionForm>
                 )}
               </>
+            ) : !user.exit_date ? (
+              <>
+                <CardTitle>Waiting for approval</CardTitle>
+                <p className="mb-3 text-sm text-muted-foreground">
+                  This person signed up without a valid sign-up link, so they can&apos;t see anything yet. Approve them only if you know them.
+                  Set their team above first.
+                </p>
+                <ActionForm action={reactivateUser} submitLabel="Approve account">
+                  <input type="hidden" name="id" value={user.id} />
+                  <input type="hidden" name="pending" value="1" />
+                </ActionForm>
+              </>
             ) : (
               <>
                 <CardTitle>Inactive</CardTitle>

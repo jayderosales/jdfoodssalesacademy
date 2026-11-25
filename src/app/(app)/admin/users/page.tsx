@@ -20,7 +20,8 @@ export default async function UsersPage({
   const teamLabel = new Map(teams.map((t) => [t.id, t.label]));
 
   let query = supabase.from("profiles").select("*").order("full_name");
-  if (status !== "all") query = query.eq("status", status);
+  if (status === "pending") query = query.eq("status", "inactive").is("exit_date", null);
+  else if (status !== "all") query = query.eq("status", status);
   if (role) query = query.eq("role", role);
   if (team) query = query.eq("team_id", team);
   if (q) {
@@ -52,6 +53,7 @@ export default async function UsersPage({
           </Select>
           <Select name="status" defaultValue={status} aria-label="Status">
             <option value="active">Active</option>
+            <option value="pending">Waiting for approval</option>
             <option value="inactive">Inactive</option>
             <option value="all">All</option>
           </Select>
@@ -78,7 +80,11 @@ export default async function UsersPage({
                 <Td>{u.team_id ? teamLabel.get(u.team_id) : "—"}</Td>
                 <Td>{formatDate(u.hire_date)}</Td>
                 <Td>
-                  <Badge tone={u.status === "active" ? "success" : "neutral"}>{u.status}</Badge>
+                  {u.status === "inactive" && !u.exit_date ? (
+                    <Badge tone="warning">waiting for approval</Badge>
+                  ) : (
+                    <Badge tone={u.status === "active" ? "success" : "neutral"}>{u.status}</Badge>
+                  )}
                   {!u.consent_at && u.status === "active" && <Badge tone="warning" className="ml-1">no consent yet</Badge>}
                 </Td>
               </tr>

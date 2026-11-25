@@ -27,6 +27,7 @@ const manager: NavItem[] = [
   { href: "/learn", label: "Learn", icon: "book" },
   { href: "/roleplay", label: "Roleplay", icon: "chat", mobile: true },
   { href: "/reports", label: "Reports", icon: "chart" },
+  { href: "/signup-links", label: "Sign-up links", icon: "users" },
   { href: "/account", label: "Me", icon: "user", mobile: true },
 ];
 
@@ -34,6 +35,7 @@ const owner: NavItem[] = [
   { href: "/dashboard", label: "Home", icon: "home", mobile: true },
   { href: "/team", label: "All reps", icon: "team", mobile: true },
   { href: "/admin/users", label: "Users", icon: "users", mobile: true },
+  { href: "/signup-links", label: "Sign-up links", icon: "users" },
   { href: "/admin/teams", label: "Teams & branches", icon: "team" },
   { href: "/admin/content", label: "Content", icon: "content" },
   { href: "/reviews", label: "Reviews", icon: "review" },
