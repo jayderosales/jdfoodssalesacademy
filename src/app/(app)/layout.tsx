@@ -30,7 +30,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
       </a>
 
       {/* Desktop sidebar */}
-      <aside className="hidden w-64 shrink-0 flex-col border-r bg-card p-4 md:sticky md:top-0 md:flex md:h-dvh">
+      <aside className="hidden w-64 shrink-0 flex-col border-r bg-card p-4 md:sticky md:top-0 md:flex md:h-dvh print:!hidden">
         <Link href="/dashboard" className="mb-6 flex items-center gap-2">
           <Logo size={36} src={logoUrl} />
           <span className="font-bold leading-tight">
@@ -49,7 +49,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
       </aside>
 
       {/* Phone header */}
-      <header className="sticky top-0 z-30 flex items-center justify-between border-b bg-card/95 px-4 py-2 backdrop-blur md:hidden">
+      <header className="sticky top-0 z-30 flex items-center justify-between border-b bg-card/95 px-4 py-2 backdrop-blur md:hidden print:hidden">
         <Link href="/dashboard" className="flex items-center gap-2">
           <Logo size={28} src={logoUrl} />
           <span className="text-sm font-bold">Sales Academy</span>
@@ -57,11 +57,13 @@ export default async function AppLayout({ children }: { children: React.ReactNod
         <span className="text-xs text-muted-foreground">{ROLE_LABEL[profile.role]}</span>
       </header>
 
-      <main id="main" className="mx-auto w-full max-w-6xl flex-1 px-4 pb-24 pt-4 md:px-8 md:pb-10 md:pt-8">
+      <main id="main" className="mx-auto w-full max-w-6xl flex-1 px-4 pb-24 pt-4 md:px-8 md:pb-10 md:pt-8 print:max-w-none print:p-0">
         {children}
       </main>
 
-      <BottomNav items={items} />
+      <div className="print:hidden">
+        <BottomNav items={items} />
+      </div>
     </div>
   );
 }

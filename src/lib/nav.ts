@@ -26,6 +26,7 @@ const manager: NavItem[] = [
   { href: "/reviews", label: "Reviews", icon: "review", mobile: true },
   { href: "/learn", label: "Learn", icon: "book" },
   { href: "/roleplay", label: "Roleplay", icon: "chat", mobile: true },
+  { href: "/reports", label: "Reports", icon: "chart" },
   { href: "/account", label: "Me", icon: "user", mobile: true },
 ];
 
