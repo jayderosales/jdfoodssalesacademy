@@ -228,6 +228,22 @@ describe("owner", () => {
   });
 });
 
+describe("roleplay scores", () => {
+  it("allows only one current score per roleplay (blocks double grading)", async () => {
+    const sid = (await db.query<{ id: string }>(
+      `insert into public.roleplay_sessions (user_id, scenario_id, status) values ($1, '15000000-0000-4000-8000-000000000001', 'ended') returning id`, [ids.rep1])).rows[0].id;
+    await db.query(`insert into public.roleplay_scores (session_id, source, scores, overall, is_current) values ($1, 'ai', '{}', 70, true)`, [sid]);
+    await expect(
+      db.query(`insert into public.roleplay_scores (session_id, source, scores, overall, is_current) values ($1, 'ai', '{}', 75, true)`, [sid]),
+    ).rejects.toThrow(/roleplay_scores_one_current|duplicate key/);
+    // a manager override (old score made non-current first) still works, and the original is kept
+    await db.query(`update public.roleplay_scores set is_current = false where session_id = $1`, [sid]);
+    await db.query(`insert into public.roleplay_scores (session_id, source, scores, overall, is_current) values ($1, 'manager', '{}', 80, true)`, [sid]);
+    const rows = (await db.query<{ n: number; cur: number }>(`select count(*) n, count(*) filter (where is_current) cur from public.roleplay_scores where session_id = $1`, [sid])).rows[0];
+    expect([Number(rows.n), Number(rows.cur)]).toEqual([2, 1]);
+  });
+});
+
 describe("sign-up links", () => {
   const status = async (id: string) =>
     (await db.query<{ status: string; role: string; team_id: string | null; full_name: string }>(`select status, role, team_id, full_name from public.profiles where id = $1`, [id])).rows[0];

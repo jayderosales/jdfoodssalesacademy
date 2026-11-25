@@ -91,9 +91,18 @@ export function RoleplayChat({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ message: text }),
       });
+      if (res.status === 401 || res.redirected) {
+        rollback("Your sign-in has expired. Your message is still in the box. Sign in again in a new tab, then press Send.");
+        return;
+      }
       if (!res.ok || !res.body) {
         const j = await res.json().catch(() => ({}));
         rollback(j.error ?? "Something went wrong. Please try again.");
+        return;
+      }
+      // Anything other than the streamed text reply (e.g. an HTML page) is an error, never shown as the customer's words.
+      if (!(res.headers.get("content-type") ?? "").startsWith("text/plain")) {
+        rollback("Something went wrong. Please refresh the page and try again.");
         return;
       }
       const reader = res.body.getReader();

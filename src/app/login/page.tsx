@@ -11,8 +11,8 @@ const ERRORS: Record<string, string> = {
   link: "That sign-in link is invalid or has expired. Please request a new one.",
 };
 
-export default async function LoginPage({ searchParams }: { searchParams: Promise<{ next?: string; error?: string }> }) {
-  const { next, error } = await searchParams;
+export default async function LoginPage({ searchParams }: { searchParams: Promise<{ next?: string; error?: string; notice?: string }> }) {
+  const { next, error, notice } = await searchParams;
   const { profile } = await getAuthState();
   if (profile?.status === "active") redirect("/dashboard");
   const settings = await getSettings().catch(() => null);
@@ -26,6 +26,11 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
           <p className="text-sm text-muted-foreground">Sign in with the account your manager created for you.</p>
         </div>
         <Card>
+          {notice === "confirmed" && (
+            <div className="mb-4">
+              <Alert tone="success">Your email is confirmed. Sign in below with your email and the password you created.</Alert>
+            </div>
+          )}
           {error && ERRORS[error] && (
             <div className="mb-4">
               <Alert tone="danger">{ERRORS[error]}</Alert>

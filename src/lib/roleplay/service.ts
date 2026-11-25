@@ -239,6 +239,19 @@ export async function endAndGrade(profile: Profile, sessionId: string): Promise<
     return { ok: true };
   }
 
+  // Claim the grading run so two requests (rep taps "End" as the customer ends the chat) can't both call the AI.
+  // A claim older than 2 minutes is treated as stuck and can be taken over.
+  const staleBefore = new Date(Date.now() - 120_000).toISOString();
+  const { data: claimed } = await admin
+    .from("roleplay_sessions")
+    .update({ grading_started_at: new Date().toISOString() })
+    .eq("id", sessionId)
+    .neq("status", "graded")
+    .or(`grading_started_at.is.null,grading_started_at.lt."${staleBefore}"`)
+    .select("id");
+  if (!claimed?.length) return waitForGrade(sessionId);
+  const release = () => admin.from("roleplay_sessions").update({ grading_started_at: null }).eq("id", sessionId);
+
   const scenario = (await getScenario(session.scenario_id))!;
   const rubric = await getRubric(scenario.rubric_id);
   const model = MODELS.grader;
@@ -269,7 +282,10 @@ export async function endAndGrade(profile: Profile, sessionId: string): Promise<
     await logAiUsage({ userId: profile.id, feature: "roleplay_grade", model, usage: res.usage, refId: sessionId });
 
     const grade = res.stop_reason === "refusal" ? null : normalizeGrade(res.parsed_output);
-    if (!grade) return { ok: false, error: "The AI couldn't grade this conversation. Your manager can still review it." };
+    if (!grade) {
+      await release();
+      return { ok: false, error: "The AI couldn't grade this conversation. Your manager can still review it." };
+    }
 
     await admin.from("roleplay_scores").update({ is_current: false }).eq("session_id", sessionId);
     const { error } = await admin.from("roleplay_scores").insert({
@@ -286,8 +302,13 @@ export async function endAndGrade(profile: Profile, sessionId: string): Promise<
       model,
       is_current: true,
     });
-    if (error) return { ok: false, error: error.message };
-    await admin.from("roleplay_sessions").update({ status: "graded" }).eq("id", sessionId);
+    if (error) {
+      // 23505 = another run already saved the current score (one current score per session is enforced).
+      if (error.code === "23505") return { ok: true };
+      await release();
+      return { ok: false, error: error.message };
+    }
+    await admin.from("roleplay_sessions").update({ status: "graded", grading_started_at: null }).eq("id", sessionId);
 
     // First graded roleplay → badge.
     const { data: badge } = await admin.from("badges").select("id").eq("code", "first_roleplay").maybeSingle();
@@ -295,6 +316,19 @@ export async function endAndGrade(profile: Profile, sessionId: string): Promise<
     return { ok: true };
   } catch (e) {
     console.error("roleplay grading failed", e);
+    await release();
     return { ok: false, error: "Grading is unavailable right now. Try again in a minute." };
   }
+}
+
+/** Another request is already grading this session: wait (up to ~50 s) for it to finish instead of grading twice. */
+async function waitForGrade(sessionId: string): Promise<{ ok: boolean; error?: string }> {
+  const admin = createAdminClient();
+  for (let i = 0; i < 25; i++) {
+    await new Promise((r) => setTimeout(r, 2000));
+    const { data } = await admin.from("roleplay_sessions").select("status, grading_started_at").eq("id", sessionId).maybeSingle();
+    if (data?.status === "graded") return { ok: true };
+    if (!data?.grading_started_at) return { ok: false, error: "Scoring didn't finish. Tap “Get my score” to try again." };
+  }
+  return { ok: false, error: "Scoring is taking longer than usual. Refresh the page in a moment." };
 }

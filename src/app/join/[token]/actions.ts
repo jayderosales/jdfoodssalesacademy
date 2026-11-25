@@ -31,7 +31,7 @@ export async function joinWithLink(_: JoinState, form: FormData): Promise<JoinSt
     password,
     options: {
       data: { signup_token: token, full_name },
-      emailRedirectTo: `${siteUrl()}/auth/callback?next=/dashboard`,
+      emailRedirectTo: `${siteUrl()}/auth/callback?next=/dashboard&flow=signup`,
     },
   });
   if (error) {

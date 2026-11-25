@@ -26,6 +26,11 @@ export async function middleware(request: NextRequest) {
   const path = request.nextUrl.pathname;
   const isPublic = PUBLIC_PATHS.some((p) => path === p || path.startsWith(p + "/"));
 
+  // API calls (e.g. the roleplay chat) get a JSON 401 instead of a redirect to the HTML sign-in page.
+  if (!user && path.startsWith("/api/")) {
+    return NextResponse.json({ error: "Your sign-in has expired. Please sign in again.", code: "signed_out" }, { status: 401 });
+  }
+
   if (!user && !isPublic) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
