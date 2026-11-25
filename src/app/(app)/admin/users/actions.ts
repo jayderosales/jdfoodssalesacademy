@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 import { requireOwner } from "@/lib/auth";
 import { siteUrl } from "@/lib/safe-redirect";
-import { createAdminClient, createClient } from "@/lib/supabase/server";
+import { SERVICE_KEY_HELP, createAdminClient, createClient, serviceKeyMissing } from "@/lib/supabase/server";
 import { manilaToday } from "@/lib/utils";
 
 export type FormState = { error?: string; message?: string };
@@ -35,6 +35,7 @@ export async function createUser(_: FormState, form: FormData): Promise<FormStat
   if (!parsed.success) return { error: parsed.error.issues[0].message };
   const v = parsed.data;
 
+  if (serviceKeyMissing()) return { error: SERVICE_KEY_HELP };
   const admin = createAdminClient();
   // app_metadata is server-controlled; the DB trigger reads role/team/hire date from it.
   const app_metadata = { role: v.role, full_name: v.full_name, team_id: v.team_id ?? "", hire_date: v.hire_date ?? "" };
@@ -169,5 +170,6 @@ export async function sendReset(_: FormState, form: FormData): Promise<FormState
 
 function friendly(msg: string) {
   if (/already been registered|already exists/i.test(msg)) return "A user with that email already exists.";
+  if (/invalid api key|invalid jwt|jwt/i.test(msg)) return SERVICE_KEY_HELP;
   return msg;
 }

@@ -24,9 +24,18 @@ export async function createClient() {
  * Service-role client: bypasses RLS. Only use after the caller's permission has been checked
  * (e.g. creating auth users, writing grading results). Never import into client components.
  */
+export const SERVICE_KEY_HELP =
+  "The server's Supabase secret key is missing or wrong. Add SUPABASE_SERVICE_ROLE_KEY (Supabase → Project Settings → API Keys → service_role) to Vercel's Environment Variables (or .env.local when running locally), then redeploy or restart.";
+
+/** True when the service-role key is absent or still a placeholder. */
+export function serviceKeyMissing() {
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY ?? "";
+  return !key || /PASTE|placeholder/i.test(key);
+}
+
 export function createAdminClient() {
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  if (!key) throw new Error("SUPABASE_SERVICE_ROLE_KEY is not set");
+  if (!key || serviceKeyMissing()) throw new Error(SERVICE_KEY_HELP);
   return createSupabaseClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, key, {
     auth: { persistSession: false, autoRefreshToken: false },
   });
