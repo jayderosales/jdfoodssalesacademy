@@ -1,11 +1,11 @@
 import Link from "next/link";
-import { BottomNav, SideNavSections } from "@/components/app-nav";
+import { BottomNav, ModuleTabs, SideNavSections } from "@/components/app-nav";
 import { CommandPalette } from "@/components/command-palette";
 import { IdleTimeout } from "@/components/idle-timeout";
 import { Logo } from "@/components/logo";
 import { NotificationBell } from "@/components/notification-bell";
 import { getAccess, getSettings, requireUser } from "@/lib/auth";
-import { buildNav, paletteItems } from "@/lib/nav";
+import { buildNav, paletteItems, trainingTabs } from "@/lib/nav";
 import { getMyRoleNames } from "@/lib/rbac/queries";
 import { createClient, serviceKeyMissing } from "@/lib/supabase/server";
 
@@ -83,6 +83,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
               redeploy. (Only administrators see this message.)
             </div>
           )}
+          <ModuleTabs items={trainingTabs(access.permissions, profile.role)} label="Training" />
           {children}
         </main>
       </div>

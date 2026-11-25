@@ -11,6 +11,8 @@ export interface NavItem {
   icon: IconName;
   /** shown in the phone bottom bar (number = priority, lower first) */
   mobile?: number | boolean;
+  /** other paths that count as "this item" for highlighting (e.g. all Training pages) */
+  match?: string[];
 }
 
 export interface NavSection {
@@ -25,8 +27,6 @@ interface ModuleEntry extends NavItem {
   /** optional label override by Academy level */
   labelFor?: Partial<Record<UserRole, string>>;
 }
-
-const SECTIONS = ["", "Training", "Administration", "Coming soon"] as const;
 
 /**
  * Module registry: every page in the sidebar and the permission that shows it. New modules add entries here.
@@ -64,21 +64,42 @@ export const UPCOMING_MODULES = [
   { slug: "command-center", label: "CEO Command Center", phase: "6" },
 ];
 
-export function buildNav(perms: ReadonlySet<string>, academyRole: UserRole | null): { sections: NavSection[]; mobile: NavItem[] } {
-  const visible = MODULES.filter((m) => !m.perm || m.perm.some((p) => perms.has(p))).map((m) => ({
+function visibleModules(perms: ReadonlySet<string>, academyRole: UserRole | null) {
+  return MODULES.filter((m) => !m.perm || m.perm.some((p) => perms.has(p))).map((m) => ({
     ...m,
     label: (academyRole && m.labelFor?.[academyRole]) || m.label,
   }));
-  const sections: NavSection[] = SECTIONS.filter((s) => s !== "Coming soon")
-    .map((title) => ({ title: title || undefined, items: visible.filter((m) => m.section === title && m.href !== "/account") }))
-    .filter((s) => s.items.length > 0);
+}
+
+/** The Training pages this person can open, shown as tabs on every Training page. */
+export function trainingTabs(perms: ReadonlySet<string>, academyRole: UserRole | null): NavItem[] {
+  return visibleModules(perms, academyRole)
+    .filter((m) => m.section === "Training")
+    .map(({ href, label, icon }) => ({ href, label, icon }));
+}
+
+/** Modules with sub-pages appear as ONE sidebar item; their pages are reached through tabs. */
+const GROUPED: Record<string, { label: string; icon: IconName }> = { Training: { label: "Training", icon: "book" } };
+
+export function buildNav(perms: ReadonlySet<string>, academyRole: UserRole | null): { sections: NavSection[]; mobile: NavItem[] } {
+  const visible = visibleModules(perms, academyRole);
+  const grouped: NavItem[] = Object.entries(GROUPED).flatMap(([section, g]) => {
+    const pages = visible.filter((m) => m.section === section);
+    if (!pages.length) return [];
+    const best = Math.min(...pages.map((m) => Number(m.mobile || 99)));
+    return [{ href: pages[0].href, label: g.label, icon: g.icon, match: pages.map((m) => m.href), mobile: best < 99 ? best : undefined }];
+  });
+  const top = [...visible.filter((m) => m.section === "" && m.href !== "/account"), ...grouped];
+  const sections: NavSection[] = [{ items: top }];
+  const admin = visible.filter((m) => m.section === "Administration");
+  if (admin.length) sections.push({ title: "Administration", items: admin });
   if (perms.has("admin.roles.manage")) {
     sections.push({
       title: "Coming soon",
       items: UPCOMING_MODULES.map((u) => ({ href: `/modules/${u.slug}`, label: u.label, icon: "soon" as const })),
     });
   }
-  const mobile = [...visible]
+  const mobile = [...visible.filter((m) => !(m.section in GROUPED)), ...grouped]
     .filter((m) => m.mobile)
     .sort((a, b) => Number(a.mobile ?? 99) - Number(b.mobile ?? 99))
     .filter((m, i, arr) => arr.findIndex((x) => x.href === m.href) === i)
@@ -91,7 +112,7 @@ export function buildNav(perms: ReadonlySet<string>, academyRole: UserRole | nul
 /** Flat list for the command palette. */
 export function paletteItems(perms: ReadonlySet<string>, academyRole: UserRole | null): NavItem[] {
   const { sections } = buildNav(perms, academyRole);
-  const items = sections.flatMap((s) => s.items);
+  const items = [...sections.flatMap((s) => s.items).filter((i) => !i.match), ...trainingTabs(perms, academyRole)];
   items.push({ href: "/account", label: "My account", icon: "user" });
   if (["admin.org.manage", "employees.manage", "admin.users.view", "readonly.all"].some((p) => perms.has(p))) {
     items.push(

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buildNav } from "./nav";
+import { buildNav, trainingTabs } from "./nav";
 
 const hrefs = (perms: string[], role: "owner" | "manager" | "rep" | null = null) => {
   const { sections, mobile } = buildNav(new Set(perms), role);
@@ -7,10 +7,19 @@ const hrefs = (perms: string[], role: "owner" | "manager" | "rep" | null = null)
 };
 
 describe("buildNav", () => {
-  it("shows a sales rep only their training pages", () => {
+  it("shows Training as one sidebar item, with the rep's pages as tabs", () => {
     const n = hrefs(["org.view", "academy.learn"], "rep");
-    expect(n.all).toEqual(["/dashboard", "/learn", "/quizzes", "/roleplay"]);
-    expect(n.mobile).toEqual(["/dashboard", "/learn", "/roleplay", "/quizzes", "/account"]);
+    expect(n.all).toEqual(["/dashboard", "/learn"]);
+    const { sections } = buildNav(new Set(["org.view", "academy.learn"]), "rep");
+    const training = sections[0].items.find((i) => i.label === "Training");
+    expect(training?.match).toEqual(["/learn", "/quizzes", "/roleplay"]);
+    expect(n.mobile).toEqual(["/dashboard", "/learn", "/account"]);
+    expect(trainingTabs(new Set(["academy.learn"]), "rep").map((t) => t.label)).toEqual(["Learn", "Quizzes", "Roleplay"]);
+  });
+  it("gives Academy admins every Training tab", () => {
+    expect(trainingTabs(new Set(["academy.admin", "academy.learn"]), "owner").map((t) => t.href)).toEqual([
+      "/learn", "/quizzes", "/roleplay", "/team", "/reviews", "/reports", "/signup-links", "/admin/content",
+    ]);
   });
   it("shows a warehouse person no training pages", () => {
     const n = hrefs(["org.view"]);
@@ -27,8 +36,7 @@ describe("buildNav", () => {
     expect(hrefs(["admin.roles.manage"]).titles).toContain("Coming soon");
     expect(hrefs(["admin.users.view"]).titles).not.toContain("Coming soon");
   });
-  it("labels the team page 'All reps' for Academy admins", () => {
-    const { sections } = buildNav(new Set(["academy.admin"]), "owner");
-    expect(sections.flatMap((s) => s.items).find((i) => i.href === "/team")?.label).toBe("All reps");
+  it("labels the team tab 'All reps' for Academy admins", () => {
+    expect(trainingTabs(new Set(["academy.admin"]), "owner").find((i) => i.href === "/team")?.label).toBe("All reps");
   });
 });

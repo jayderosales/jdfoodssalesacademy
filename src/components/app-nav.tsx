@@ -32,13 +32,45 @@ function isActive(pathname: string, href: string) {
   return pathname === href || pathname.startsWith(href + "/");
 }
 
+function itemActive(pathname: string, item: NavItem) {
+  return item.match ? item.match.some((h) => isActive(pathname, h)) : isActive(pathname, item.href);
+}
+
+/** Tabs across the top of every page in a grouped module (e.g. Training). Renders nothing elsewhere. */
+export function ModuleTabs({ items, label }: { items: NavItem[]; label: string }) {
+  const pathname = usePathname();
+  if (!items.some((i) => isActive(pathname, i.href))) return null;
+  return (
+    <nav aria-label={label} className="-mx-4 mb-6 flex gap-1 overflow-x-auto border-b px-4 md:mx-0 md:px-0 print:hidden">
+      {items.map((item) => {
+        const Icon = ICONS[item.icon];
+        const active = isActive(pathname, item.href);
+        return (
+          <Link
+            key={item.href}
+            href={item.href}
+            aria-current={active ? "page" : undefined}
+            className={cn(
+              "flex items-center gap-1.5 whitespace-nowrap border-b-2 px-3 py-2 text-sm",
+              active ? "border-brand font-semibold text-brand" : "border-transparent text-muted-foreground hover:text-foreground",
+            )}
+          >
+            <Icon className="size-4" aria-hidden />
+            {item.label}
+          </Link>
+        );
+      })}
+    </nav>
+  );
+}
+
 export function SideNav({ items }: { items: NavItem[] }) {
   const pathname = usePathname();
   return (
     <nav aria-label="Main" className="flex flex-col gap-1">
       {items.map((item) => {
         const Icon = ICONS[item.icon];
-        const active = isActive(pathname, item.href);
+        const active = itemActive(pathname, item);
         return (
           <Link
             key={item.href}
@@ -69,7 +101,7 @@ export function BottomNav({ items }: { items: NavItem[] }) {
       <ul className="grid" style={{ gridTemplateColumns: `repeat(${mobile.length}, minmax(0, 1fr))` }}>
         {mobile.map((item) => {
           const Icon = ICONS[item.icon];
-          const active = isActive(pathname, item.href);
+          const active = itemActive(pathname, item);
           return (
             <li key={item.href}>
               <Link
