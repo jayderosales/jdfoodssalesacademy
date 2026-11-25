@@ -7,7 +7,7 @@ import { NotificationBell } from "@/components/notification-bell";
 import { getAccess, getSettings, requireUser } from "@/lib/auth";
 import { buildNav, paletteItems } from "@/lib/nav";
 import { getMyRoleNames } from "@/lib/rbac/queries";
-import { createClient } from "@/lib/supabase/server";
+import { createClient, serviceKeyMissing } from "@/lib/supabase/server";
 
 const ACTIVITY_THROTTLE_MS = 10 * 60 * 1000;
 
@@ -76,6 +76,13 @@ export default async function AppLayout({ children }: { children: React.ReactNod
         </header>
 
         <main id="main" className="mx-auto w-full max-w-6xl flex-1 px-4 pb-24 pt-4 md:px-8 md:pb-10 md:pt-8 print:max-w-none print:p-0">
+          {serviceKeyMissing() && access.permissions.has("admin.settings.manage") && (
+            <div role="alert" className="mb-4 rounded-lg border border-amber-300 bg-amber-50 p-3 text-sm text-amber-900">
+              <strong>Setup needed:</strong> the server key <code>SUPABASE_SERVICE_ROLE_KEY</code> isn&apos;t set on this deployment, so lessons, quizzes,
+              roleplays, reviews, adding users and sign-in history won&apos;t work. Add it in Vercel → Settings → Environment Variables, then
+              redeploy. (Only administrators see this message.)
+            </div>
+          )}
           {children}
         </main>
       </div>

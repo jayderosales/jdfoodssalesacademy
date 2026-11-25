@@ -50,3 +50,8 @@ Format: date — decision — why — alternatives considered.
 
 ### 2026-11-26 — MFA enforcement in the database
 - **Decision:** `has_permission()` requires an `aal2` session for internal users, so a stolen password alone reads nothing. External portal users don't need MFA. A settings switch (`require_mfa_internal`) exists for rollout; it's audited.
+
+### 2026-11-26 — Two-step sign-in switched off (owner's choice)
+- **Decision:** `app_settings.require_mfa_internal` set to false on the live project. The feature stays in the code and can be switched back on in Settings → Sign-in security. New environments still start with it on.
+- **Why:** owner asked to remove it.
+- **Risk accepted:** a stolen staff password alone gives access. Revisit before Phase 5 (accounting) and Phase 9 (payroll) go live, or at least require it for admins.

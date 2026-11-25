@@ -2,7 +2,7 @@ import Link from "next/link";
 import { Alert, Card, CardTitle, PageHeader } from "@/components/ui";
 import { requireUser } from "@/lib/auth";
 import { getMyRoleNames } from "@/lib/rbac/queries";
-import { createAdminClient, createClient } from "@/lib/supabase/server";
+import { createAdminClient, createClient, serviceKeyMissing } from "@/lib/supabase/server";
 import { RepDashboard } from "./rep-dashboard";
 
 export const metadata = { title: "Dashboard" };
@@ -23,11 +23,14 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
   ]);
 
   // Staff: roleplays on their reps not yet reviewed.
-  let awaitingReview = 0;
+  // null = can't count (server key not configured); the rest of the dashboard still works.
+  let awaitingReview: number | null = 0;
   if (profile.role === "owner" || profile.role === "manager") {
     const { data: reps } = await supabase.from("profiles").select("id").eq("role", "rep");
     const ids = (reps ?? []).map((r: { id: string }) => r.id);
-    if (ids.length) {
+    if (serviceKeyMissing()) {
+      awaitingReview = null;
+    } else if (ids.length) {
       const { count } = await createAdminClient()
         .from("roleplay_sessions")
         .select("id", { count: "exact", head: true })
@@ -72,7 +75,8 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
             )}
             <Card>
               <CardTitle>Roleplays awaiting review</CardTitle>
-              <p className="text-3xl font-bold text-brand">{awaitingReview}</p>
+              <p className="text-3xl font-bold text-brand">{awaitingReview ?? "—"}</p>
+              {awaitingReview === null && <p className="text-xs text-muted-foreground">Needs the server key in Vercel to count.</p>}
               <Link href="/reviews" className="mt-2 inline-block text-sm text-brand underline">Open review queue</Link>
             </Card>
           </>
