@@ -33,3 +33,14 @@ export async function setPassword(_: FormState, form: FormData): Promise<FormSta
   if (error) return { error: error.message };
   return { message: "Password saved. You can now sign in with your email and password." };
 }
+
+/** Remove one of your own remembered devices (you'll get a new-device email next time it signs in). */
+export async function forgetDevice(_: FormState, form: FormData): Promise<FormState> {
+  const profile = await requireUser();
+  const deviceId = String(form.get("device_id") ?? "");
+  const supabase = await createClient();
+  const { error } = await supabase.from("user_devices").delete().eq("user_id", profile.id).eq("device_id", deviceId);
+  if (error) return { error: error.message };
+  revalidatePath("/account");
+  return { message: "Device removed." };
+}

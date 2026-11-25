@@ -16,7 +16,7 @@ const params = z.object({
 /** CSV downloads of the report, scoped exactly like the Reports page (RLS decides which reps are included). */
 export async function GET(request: NextRequest) {
   const { profile } = await getAuthState();
-  if (!profile || profile.status !== "active" || !["owner", "manager"].includes(profile.role)) {
+  if (!profile || profile.status !== "active" || !profile.role || !["owner", "manager"].includes(profile.role)) {
     return NextResponse.json({ error: "Not allowed." }, { status: 403 });
   }
   const parsed = params.safeParse(Object.fromEntries(request.nextUrl.searchParams));

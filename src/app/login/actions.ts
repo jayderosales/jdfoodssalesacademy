@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 import { createClient } from "@/lib/supabase/server";
 import { safeNext, siteUrl } from "@/lib/safe-redirect";
+import { afterSignIn, recordLogin } from "@/lib/security";
 
 export type FormState = { error?: string; message?: string };
 
@@ -17,8 +18,13 @@ export async function signInWithPassword(_: FormState, form: FormData): Promise<
   if (!parsed.success) return { error: parsed.error.issues[0].message };
 
   const supabase = await createClient();
-  const { error } = await supabase.auth.signInWithPassword(parsed.data);
-  if (error) return { error: "Wrong email or password." };
+  const { data, error } = await supabase.auth.signInWithPassword(parsed.data);
+  if (error || !data.user) {
+    await recordLogin({ userId: null, email: parsed.data.email, method: "password", success: false, reason: error?.code ?? "invalid_credentials" });
+    return { error: "Wrong email or password." };
+  }
+  await recordLogin({ userId: data.user.id, email: parsed.data.email, method: "password", success: true });
+  await afterSignIn(data.user.id, parsed.data.email);
 
   redirect(safeNext(form.get("next") as string | null));
 }

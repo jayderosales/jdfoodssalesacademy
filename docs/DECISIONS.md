@@ -36,3 +36,17 @@ Format: date — decision — why — alternatives considered.
 ### 2026-11-26 — Price lists
 - **Decision:** seed price lists: retail (also Shopify), wholesale/regular, corporate, distributor, reseller (separate from distributor), plus customer-specific price overrides that win over the customer's list. Quantity breaks optional; MOQ default 1.
 - **Why:** owner confirmed distributors and resellers have different arrangements and some customers have special prices.
+
+### 2026-11-26 — Keep profiles.role as a read-only Academy cache (deviation from the 1a plan)
+- **Decision:** instead of dropping `profiles.role`, keep it as a cache of the user's Academy level (owner/manager/rep/null), maintained by triggers from their roles' permissions. Direct writes are blocked. RLS never uses it; it uses `has_permission()`.
+- **Why:** ~170 places in the Academy code filter or label by it (e.g. "list reps"). Keeping the column avoided a risky rewrite of working screens while still making RBAC the single source of truth.
+- **Alternative:** a view or RPC for "academy level" and rewriting those queries; can be done gradually.
+
+### 2026-11-26 — Organization menu vs directory access
+- **Decision:** every staff role gets `org.view` (needed later to pick locations/departments in forms), but the Organization menu item only shows for people who maintain it or audit it (`admin.org.manage`, `employees.manage`, `admin.users.view`, `readonly.all`).
+
+### 2026-11-26 — Prettier for new code only
+- **Decision:** Prettier config added; the existing Academy files were not mass-reformatted (would bury real changes in a 100-file diff). CI runs lint, typecheck, tests and build, not a format check. A one-off formatting commit can be done any time.
+
+### 2026-11-26 — MFA enforcement in the database
+- **Decision:** `has_permission()` requires an `aal2` session for internal users, so a stolen password alone reads nothing. External portal users don't need MFA. A settings switch (`require_mfa_internal`) exists for rollout; it's audited.

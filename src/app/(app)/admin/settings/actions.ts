@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
-import { requireOwner } from "@/lib/auth";
+import { requireOwner, requirePermission } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 
 export type FormState = { error?: string; message?: string };
@@ -18,7 +18,7 @@ const brandingSchema = z.object({
 });
 
 export async function saveBranding(_: FormState, form: FormData): Promise<FormState> {
-  await requireOwner();
+  await requirePermission(["admin.settings.manage", "academy.admin"]);
   const parsed = brandingSchema.safeParse(Object.fromEntries(form));
   if (!parsed.success) return { error: parsed.error.issues[0].message };
 
@@ -74,7 +74,7 @@ const privacySchema = z.object({
 });
 
 export async function savePrivacy(_: FormState, form: FormData): Promise<FormState> {
-  await requireOwner();
+  await requirePermission(["admin.settings.manage", "academy.admin"]);
   const parsed = privacySchema.safeParse(Object.fromEntries(form));
   if (!parsed.success) return { error: parsed.error.issues[0].message };
   const supabase = await createClient();
@@ -84,4 +84,42 @@ export async function savePrivacy(_: FormState, form: FormData): Promise<FormSta
   revalidatePath("/", "layout");
   const bumped = before?.consent_version !== parsed.data.consent_version;
   return { message: bumped ? "Saved. Everyone will be asked to accept the new notice version at their next visit." : "Saved." };
+}
+
+const companySchema = z.object({
+  id: z.string().uuid(),
+  name: z.string().trim().min(2).max(120),
+  legal_name: z.string().trim().max(200),
+  tin: z.string().trim().max(30),
+  vat_registered: z.enum(["", "yes", "no"]).transform((v) => (v === "" ? null : v === "yes")),
+  address: z.string().trim().max(400),
+});
+
+export async function saveCompany(_: FormState, form: FormData): Promise<FormState> {
+  await requirePermission("admin.settings.manage");
+  const parsed = companySchema.safeParse(Object.fromEntries(form));
+  if (!parsed.success) return { error: parsed.error.issues[0].message };
+  const { id, ...fields } = parsed.data;
+  const supabase = await createClient();
+  const { error } = await supabase.from("entities").update(fields).eq("id", id);
+  if (error) return { error: error.message };
+  revalidatePath("/admin/settings");
+  return { message: "Company profile saved." };
+}
+
+const securitySchema = z.object({
+  require_mfa_internal: z.preprocess((v) => v === "on", z.boolean()),
+  idle_timeout_internal_minutes: z.coerce.number().int().min(5, "At least 5 minutes.").max(1440),
+  idle_timeout_external_minutes: z.coerce.number().int().min(5).max(43200),
+});
+
+export async function saveSecurity(_: FormState, form: FormData): Promise<FormState> {
+  await requirePermission("admin.security.manage");
+  const parsed = securitySchema.safeParse(Object.fromEntries(form));
+  if (!parsed.success) return { error: parsed.error.issues[0].message };
+  const supabase = await createClient();
+  const { error } = await supabase.from("app_settings").update(parsed.data).eq("id", true);
+  if (error) return { error: error.message };
+  revalidatePath("/admin/settings");
+  return { message: "Security settings saved. New timeouts apply from each person's next sign-in." };
 }

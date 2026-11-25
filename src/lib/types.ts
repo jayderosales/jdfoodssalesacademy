@@ -1,11 +1,19 @@
 export type UserRole = "owner" | "manager" | "rep";
 export type UserStatus = "active" | "inactive";
+export type AccountType = "staff" | "customer" | "distributor" | "supplier";
 
 export interface Profile {
   id: string;
   email: string;
   full_name: string;
-  role: UserRole;
+  /** Academy access level, derived from the user's roles (read-only cache; null = no Academy access). Use permissions for security. */
+  role: UserRole | null;
+  employee_id: string | null;
+  account_type: AccountType;
+  company_name: string;
+  phone: string;
+  registration_note: string;
+  approved_at: string | null;
   team_id: string | null;
   hire_date: string | null;
   status: UserStatus;
@@ -18,15 +26,11 @@ export interface Profile {
   created_at: string;
 }
 
-export interface Branch {
-  id: string;
-  name: string;
-}
-
 export interface Team {
   id: string;
   name: string;
-  branch_id: string | null;
+  location_id: string | null;
+  department_id: string | null;
 }
 
 export interface AppSettings {
@@ -47,6 +51,9 @@ export interface AppSettings {
   consent_text: string;
   dpo_contact: string;
   data_retention_years: number;
+  require_mfa_internal: boolean;
+  idle_timeout_internal_minutes: number;
+  idle_timeout_external_minutes: number;
 }
 
 export const ROLE_LABEL: Record<UserRole, string> = {

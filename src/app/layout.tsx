@@ -1,11 +1,14 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
+import { ServiceWorkerRegister } from "@/components/sw-register";
 import { getAuthState, getSettings } from "@/lib/auth";
 import { isHexColor } from "@/lib/utils";
 
 export const metadata: Metadata = {
-  title: { default: "JD Foods Sales Academy", template: "%s · JD Foods Sales Academy" },
-  description: "Training, assessment and performance tracking for the JD Foods sales team.",
+  title: { default: "JD Foods OS", template: "%s · JD Foods OS" },
+  description: "JD Foods company system: training, sales, inventory, finance and more.",
+  icons: { icon: "/icon.svg", apple: "/icon.svg" },
+  appleWebApp: { capable: true, title: "JD Foods", statusBarStyle: "default" },
 };
 
 export const viewport: Viewport = {
@@ -33,7 +36,10 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   return (
     <html lang="en">
       <head>{css ? <style>{css}</style> : null}</head>
-      <body className="min-h-dvh antialiased">{children}</body>
+      <body className="min-h-dvh antialiased">
+        {children}
+        <ServiceWorkerRegister />
+      </body>
     </html>
   );
 }

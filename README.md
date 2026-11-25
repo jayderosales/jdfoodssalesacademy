@@ -2,7 +2,7 @@
 
 Training, assessment and performance tracking for the JD Foods sales team. Built with Next.js (App Router), TypeScript, Tailwind, Supabase and the Anthropic API.
 
-**Status:** Phases 1–3 complete. Not yet deployed.
+**Status:** Academy Phases 1–3 complete; growing into JD FOODS OS (see CLAUDE.md and docs/). JD FOODS OS Phase 1a (platform foundation) built. Not yet deployed.
 
 | Phase | Scope | Status |
 |---|---|---|

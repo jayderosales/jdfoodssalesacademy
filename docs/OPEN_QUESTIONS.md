@@ -9,6 +9,10 @@ Answer inline under each question (or in chat). Answered questions move to the b
 
 ## Other open items (not blocking Phase 1)
 
+- **Supabase Auth settings to turn on** (dashboard → Authentication): leaked-password protection (advisor warning); session inactivity timeout / time-box (Pro plan). TOTP MFA is on by default.
+- **Test Supabase project for E2E.** `e2e/phase-1a.spec.ts` creates and deletes users, so it should run against a separate test project, not the live one. Create one (free tier is fine) and add its keys as GitHub secrets, or tell me to skip it.
+- **Resend** isn't configured yet, so new-device emails are skipped (logged) until RESEND_API_KEY and EMAIL_FROM are set.
+
 - Paste or save the original build prompts as `docs/PROMPTS.md` so future sessions can refer to them.
 - If an original CLAUDE.md exists, provide it (the current one is a draft).
 - All tax rates, statutory tables, BIR forms and the chart of accounts need accountant sign-off before Phase 5 / 9 go-live.

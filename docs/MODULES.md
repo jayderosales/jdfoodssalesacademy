@@ -4,11 +4,11 @@ Status: **not started** / **in progress** / **done**. Phase numbers follow the a
 
 | # | Module | Status | Phase | Notes |
 |---|---|---|---|---|
-| 1 | Core infrastructure | in progress | 1a, 1b | Academy has auth, simple roles, RLS, audit triggers. RBAC, org model, numbering, attachments, outbox, import framework to build. |
+| 1 | Core infrastructure | in progress | 1a, 1b | **1a done:** org model, RBAC + RLS, MFA, sign-in security, audit v2, app shell, CI, PWA. **1b:** numbering, attachments, outbox, import framework, shared components. |
 | 2 | Executive dashboard | not started | 6 | |
 | 3 | Accounting | not started | 5 | |
 | 4 | Finance | not started | 5 | Budgets, cash forecast, debt, ratios, scenarios, credit, capex |
-| 5 | HRIS | not started | 9 | Basic employee profile in 1a |
+| 5 | HRIS | in progress | 1a, 9 | Basic employee profile + reporting line done (1a); full HRIS in Phase 9 |
 | 6 | Payroll | not started | 9 | |
 | 7 | Sales & CRM | not started | 3a | |
 | 8 | Client portal | not started | 7 | Incl. Business Growth Center |

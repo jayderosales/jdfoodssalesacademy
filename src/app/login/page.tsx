@@ -22,13 +22,18 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
       <div className="w-full max-w-sm">
         <div className="mb-6 flex flex-col items-center text-center">
           <Logo size={56} />
-          <h1 className="mt-3 text-2xl font-bold">{settings?.company_name ?? "JD Foods"} Sales Academy</h1>
-          <p className="text-sm text-muted-foreground">Sign in with the account your manager created for you.</p>
+          <h1 className="mt-3 text-2xl font-bold">{settings?.company_name ?? "JD Foods"} OS</h1>
+          <p className="text-sm text-muted-foreground">Sign in with your work account.</p>
         </div>
         <Card>
           {notice === "confirmed" && (
             <div className="mb-4">
               <Alert tone="success">Your email is confirmed. Sign in below with your email and the password you created.</Alert>
+            </div>
+          )}
+          {notice === "idle" && (
+            <div className="mb-4">
+              <Alert>You were signed out because you weren&apos;t active for a while. Sign in again to continue.</Alert>
             </div>
           )}
           {error && ERRORS[error] && (
@@ -38,6 +43,10 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
           )}
           <LoginForm next={next} />
         </Card>
+        <p className="mt-4 text-center text-sm text-muted-foreground">
+          Customer, distributor or supplier?{" "}
+          <a href="/register" className="text-brand underline">Request an account</a>
+        </p>
       </div>
     </main>
   );

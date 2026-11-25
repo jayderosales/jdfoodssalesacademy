@@ -72,7 +72,7 @@ export default async function LessonPage({ params }: { params: Promise<{ id: str
         )}
       </div>
 
-      {!lesson.published && <div className="mb-4"><Alert>Draft. Reps can't see this lesson yet.</Alert></div>}
+      {!lesson.published && <div className="mb-4"><Alert>Draft. Reps can&apos;t see this lesson yet.</Alert></div>}
 
       <h1 className="mb-1 text-2xl font-bold leading-tight">{lesson.title}</h1>
       <p className="mb-6 text-sm text-muted-foreground">About {lesson.est_minutes} min</p>

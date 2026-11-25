@@ -8,7 +8,11 @@
     "start": "next start",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "create-owner": "node --env-file=.env.local scripts/create-owner.mjs"
+    "create-owner": "node --env-file=.env.local scripts/create-owner.mjs",
+    "lint": "eslint .",
+    "format": "prettier --write",
+    "check": "npm run lint && npm run typecheck && npm test",
+    "test:e2e": "playwright test"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^1.14.0",
@@ -32,10 +36,15 @@
   },
   "devDependencies": {
     "@electric-sql/pglite": "^0.6.0",
+    "@eslint/eslintrc": "^3.3.7",
+    "@playwright/test": "^1.65.1",
     "@tailwindcss/postcss": "^4.1.13",
     "@types/node": "^22.18.0",
     "@types/react": "^19.1.13",
     "@types/react-dom": "^19.1.9",
+    "eslint": "^9.39.5",
+    "eslint-config-next": "^15.5.4",
+    "prettier": "^3.10.1",
     "tailwindcss": "^4.1.13",
     "typescript": "^5.9.2",
     "vitest": "^3.2.4"

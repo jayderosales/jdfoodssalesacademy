@@ -1,36 +1,9 @@
 /**
- * Runs the real migrations + seed in an in-memory Postgres (PGlite) with small stand-ins for
- * Supabase's auth/storage schemas, then checks the RLS rules as each role.
- * `npm test` runs this — no Docker or Supabase project needed.
+ * Academy access rules (from the Sales Academy phases), now resolved through RBAC.
+ * Runs the real migrations + seed in PGlite (see harness.ts). `npm test` runs this.
  */
-import { readFileSync, readdirSync } from "node:fs";
-import path from "node:path";
 import { beforeAll, describe, expect, it } from "vitest";
-import { PGlite } from "@electric-sql/pglite";
-import { pgcrypto } from "@electric-sql/pglite/contrib/pgcrypto";
-
-const root = path.resolve(__dirname, "..");
-const db = new PGlite({ extensions: { pgcrypto } });
-
-const SUPABASE_STUBS = `
-  create role anon nologin; create role authenticated nologin; create role service_role nologin bypassrls;
-  create schema extensions;
-  create extension pgcrypto schema extensions;
-  create schema auth;
-  create table auth.users (id uuid primary key, email text, raw_app_meta_data jsonb not null default '{}', raw_user_meta_data jsonb not null default '{}', invited_at timestamptz);
-  create function auth.uid() returns uuid language sql stable as $$ select nullif(current_setting('request.jwt.claim.sub', true), '')::uuid $$;
-  create schema storage;
-  create table storage.buckets (id text primary key, name text, public boolean);
-  create table storage.objects (id uuid primary key default gen_random_uuid(), bucket_id text, name text);
-  alter table storage.objects enable row level security;
-`;
-
-const GRANTS = `
-  grant usage on schema public, auth, storage to anon, authenticated, service_role;
-  grant all on all tables in schema public to anon, authenticated, service_role;
-  grant all on all sequences in schema public to anon, authenticated, service_role;
-  grant execute on function auth.uid() to anon, authenticated, service_role;
-`;
+import { createTestDb } from "./harness";
 
 const ids = {
   owner: "00000000-0000-0000-0000-000000000001",
@@ -41,27 +14,12 @@ const ids = {
 let teamA = "";
 let teamB = "";
 
-/** Run SQL as a signed-in user (role `authenticated` with the JWT subject set). */
-async function as<T = Record<string, unknown>>(uid: string, sql: string, params: unknown[] = []) {
-  return db.transaction(async (tx) => {
-    await tx.exec(`set local role authenticated; select set_config('request.jwt.claim.sub', '${uid}', true);`);
-    return (await tx.query<T>(sql, params)).rows;
-  });
-}
+let db: Awaited<ReturnType<typeof createTestDb>>["db"];
+let as: Awaited<ReturnType<typeof createTestDb>>["as"];
 
 beforeAll(async () => {
-  await db.exec(SUPABASE_STUBS);
-  const dir = path.join(root, "migrations");
-  for (const f of readdirSync(dir).sort()) await db.exec(readFileSync(path.join(dir, f), "utf8"));
-  const seeds = ["seed.sql", "seed_content_1_lessons.sql", "seed_content_2_products.sql", "seed_content_3_quizzes.sql", "seed_content_4_scenarios.sql"];
-  for (const f of seeds) {
-    await db.exec(readFileSync(path.join(root, f), "utf8"));
-  }
-  // seeds must be re-runnable
-  for (const f of seeds) {
-    await db.exec(readFileSync(path.join(root, f), "utf8"));
-  }
-  await db.exec(GRANTS);
+  // seeds must be re-runnable, so they run twice
+  ({ db, as } = await createTestDb({ seedTwice: true }));
 
   // users arrive through auth.users → profile trigger
   const users: [string, string, string][] = [
@@ -134,7 +92,10 @@ describe("rep", () => {
     expect((await db.query<{ full_name: string }>(`select full_name from public.profiles where id = $1`, [ids.rep1])).rows[0].full_name).toBe("Juan");
   });
   it("cannot promote themself", async () => {
-    await expect(as(ids.rep1, `update public.profiles set role = 'owner' where id = $1`, [ids.rep1])).rejects.toThrow(/Only the owner/);
+    await expect(as(ids.rep1, `update public.profiles set role = 'owner' where id = $1`, [ids.rep1])).rejects.toThrow(/Roles are managed/);
+    await expect(
+      as(ids.rep1, `insert into public.user_roles (user_id, role_id, granted_by) select $1, id, $1 from public.roles where code = 'super_admin'`, [ids.rep1]),
+    ).rejects.toThrow(/row-level security/);
   });
   it("cannot change own hire date", async () => {
     await expect(as(ids.rep1, `update public.profiles set hire_date = '2020-01-01' where id = $1`, [ids.rep1])).rejects.toThrow(/hire date/);
@@ -196,7 +157,7 @@ describe("manager", () => {
   });
   it("can set a rep's hire date but not their role", async () => {
     await as(ids.manager, `update public.profiles set hire_date = '2026-11-01' where id = $1`, [ids.rep1]);
-    await expect(as(ids.manager, `update public.profiles set role = 'manager' where id = $1`, [ids.rep1])).rejects.toThrow(/Only the owner/);
+    await expect(as(ids.manager, `update public.profiles set role = 'manager' where id = $1`, [ids.rep1])).rejects.toThrow(/Roles are managed/);
   });
   it("can enter KPIs for own rep only", async () => {
     await as(ids.manager, `insert into public.field_kpis (user_id, period_month, sales_php, entered_by) values ($1, '2026-11-01', 150000, $2)`, [ids.rep1, ids.manager]);
@@ -221,7 +182,14 @@ describe("owner", () => {
     expect(await as(ids.rep2, `select * from public.app_settings`)).toEqual([]);
   });
   it("cannot remove the last active owner", async () => {
-    await expect(as(ids.owner, `update public.profiles set role = 'rep' where id = $1`, [ids.owner])).rejects.toThrow(/at least one active owner/);
+    // the owner (Super administrator) can't deactivate themself or lose the role while they're the only one
+    await expect(as(ids.owner, `update public.profiles set status = 'inactive' where id = $1`, [ids.owner])).rejects.toThrow(/at least one active Super administrator/);
+    await expect(
+      db.transaction(async (tx) => {
+        await tx.exec(`select set_config('request.jwt.claim.sub', '${ids.owner}', true)`);
+        await tx.query(`delete from public.user_roles where user_id = $1 and role_id = (select id from public.roles where code = 'super_admin')`, [ids.owner]);
+      }),
+    ).rejects.toThrow(/at least one active Super administrator/);
   });
   it("cannot fake an employee's consent", async () => {
     await expect(as(ids.owner, `update public.profiles set consent_at = now() where id = $1`, [ids.manager])).rejects.toThrow(/consent/);
@@ -286,7 +254,7 @@ describe("sign-up links", () => {
   it("signing up without a token, or trying to claim a role, gives a pending rep with no access", async () => {
     const id = "00000000-0000-0000-0000-0000000000a3";
     await db.query(`insert into auth.users (id, email, raw_user_meta_data) values ($1, 'sneaky@x.ph', $2)`, [id, JSON.stringify({ role: "owner", team_id: teamB })]);
-    expect(await status(id)).toEqual({ status: "inactive", role: "rep", team_id: null, full_name: "" });
+    expect(await status(id)).toEqual({ status: "inactive", role: null, team_id: null, full_name: "" });
     expect(await as(id, `select * from public.lessons`)).toEqual([]);
   });
 

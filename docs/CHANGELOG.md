@@ -1,5 +1,20 @@
 # Changelog
 
+## 2026-11-26 — Public address
+- Vercel project now answers on **app.jdfoods.ph** (jdfoods.vercel.app was taken by another account). `NEXT_PUBLIC_SITE_URL` updated for production. Waiting on the DNS record and Supabase redirect URLs (docs/SETUP_ACCOUNTS.md).
+
+## 2026-11-26 — Phase 1a: Foundation (platform)
+- **Organization:** entities (one: JD Foods), locations (type, holds inventory, pickup point), departments (head), positions, employees (supervisor line, loop-proof). Academy branches became locations. Screens under Administration → Organization.
+- **RBAC:** permission catalog, 21 built-in roles (20 from PROMPTS.md + Operations manager), custom roles, role grants scoped to a location/department with optional end date. `has_permission*` SQL helpers; a role manager can only grant roles whose permissions they hold, never to themselves; at least one Super administrator always remains. Academy owner/manager/rep moved onto RBAC (owner → Super administrator + CEO, manager → Sales head, rep → Sales representative); `profiles.role` is now a read-only cache of the Academy level.
+- **MFA enforced in the database** for staff (aal2 required for any data except one's own profile); TOTP enrol/verify page; admin "reset two-step sign-in". Switch in Settings for rollout.
+- **Sign-in security:** login history incl. failed attempts, remembered devices + new-device email, idle sign-out (browser timer + server check), configurable timeouts.
+- **External self-registration** (customer/distributor/supplier) → pending → admin approval → portal role; portal placeholder page.
+- **Audit v2:** field-level diffs, restricted flag, append-only audit log, every table audited or explicitly exempt (DB test), restricted-read log, History panel on user/employee/role pages, audit search with filters.
+- **App shell:** permission-driven sidebar with sections, top bar (Ctrl+K search, notifications, user menu), Settings (company profile, sign-in security, branding, training settings, privacy), "coming soon" module pages for admins.
+- **Tooling:** ESLint, Prettier config, Playwright (smoke + Phase 1a flow), GitHub Actions CI, PWA manifest + service worker + offline page.
+- **Tests:** 176 unit/DB tests (37 RBAC matrix/rules, 11 audit/registration/sign-in, existing 33 Academy RLS tests kept passing) + 3 Playwright smoke tests.
+- Migrations `20261201000001…05` applied to the Supabase project (via the Supabase connector); starter Kamuning office and 9 departments added.
+
 ## 2026-11-26 — Follow-up answers recorded
 - Shopify Advanced, petty cash ₱50k (ops manager), Supabase data resettable, SI booklets, manual courier booking from 2 pickup locations with client-paid shipping, separate distributor/reseller lists + customer-specific prices. Docs updated; 2 questions still open.
 

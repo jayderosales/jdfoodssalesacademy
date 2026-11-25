@@ -3,16 +3,30 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
-  BarChart3, BookOpen, ClipboardCheck, FileText, Home, ListChecks, MessageSquare,
+  BarChart3, BookOpen, Building2, ClipboardCheck, Clock, FileText, Home, KeyRound, Link2, ListChecks, MessageSquare,
   Settings, ShieldCheck, User, Users, UsersRound, type LucideIcon,
 } from "lucide-react";
-import type { IconName, NavItem } from "@/lib/nav";
+import type { IconName, NavItem, NavSection } from "@/lib/nav";
 import { cn } from "@/lib/utils";
 
 const ICONS: Record<IconName, LucideIcon> = {
   home: Home, book: BookOpen, quiz: ListChecks, chat: MessageSquare, user: User, users: Users,
   team: UsersRound, review: ClipboardCheck, content: FileText, chart: BarChart3, settings: Settings, audit: ShieldCheck,
+  org: Building2, key: KeyRound, link: Link2, soon: Clock,
 };
+
+export function SideNavSections({ sections }: { sections: NavSection[] }) {
+  return (
+    <div className="flex flex-col gap-4 overflow-y-auto">
+      {sections.map((s, i) => (
+        <div key={s.title ?? i}>
+          {s.title && <p className="mb-1 px-3 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">{s.title}</p>}
+          <SideNav items={s.items} />
+        </div>
+      ))}
+    </div>
+  );
+}
 
 function isActive(pathname: string, href: string) {
   return pathname === href || pathname.startsWith(href + "/");
@@ -46,7 +60,7 @@ export function SideNav({ items }: { items: NavItem[] }) {
 
 export function BottomNav({ items }: { items: NavItem[] }) {
   const pathname = usePathname();
-  const mobile = items.filter((i) => i.mobile).slice(0, 5);
+  const mobile = items.filter((i) => !!i.mobile).slice(0, 5);
   return (
     <nav
       aria-label="Main"

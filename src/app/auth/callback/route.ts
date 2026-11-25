@@ -2,6 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import type { EmailOtpType } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/server";
 import { safeNext } from "@/lib/safe-redirect";
+import { afterSignIn, recordLogin } from "@/lib/security";
 
 /** Handles magic links, invites, sign-up confirmations and password resets (PKCE `code` or `token_hash`). */
 export async function GET(request: NextRequest) {
@@ -18,6 +19,17 @@ export async function GET(request: NextRequest) {
     ok = !(await supabase.auth.exchangeCodeForSession(code)).error;
   } else if (tokenHash && type) {
     ok = !(await supabase.auth.verifyOtp({ token_hash: tokenHash, type })).error;
+  }
+
+  const method = type === "invite" ? "invite" : "magic_link";
+  if (ok) {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (user) {
+      await recordLogin({ userId: user.id, email: user.email ?? "", method, success: true });
+      await afterSignIn(user.id, user.email ?? "");
+    }
   }
 
   if (!ok) {

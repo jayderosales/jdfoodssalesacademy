@@ -1,4 +1,4 @@
--- Phase 1 seed: settings, a starter branch and team, levels, the roleplay rubric and badges.
+-- Seed: settings, starter locations/departments/team, levels, the roleplay rubric and badges.
 -- Learning content, products, quizzes and scenarios are seeded in Phases 2 and 3.
 -- Safe to re-run.
 
@@ -21,10 +21,25 @@ _This notice is a placeholder for JD Foods to review with its legal adviser befo
 $consent$)
 on conflict (id) do nothing;
 
-insert into public.branches (name) values ('Main Office') on conflict (name) do nothing;
-insert into public.teams (branch_id, name)
-select id, 'Sales Team A' from public.branches where name = 'Main Office'
-on conflict (branch_id, name) do nothing;
+-- Organization (Phase 1a). Starter departments are editable placeholders; see docs/COMPANY_FACTS.md.
+insert into public.locations (entity_id, code, name, type, holds_inventory, city)
+select id, 'KAMUNING', 'Kamuning office', 'office', false, 'Quezon City' from public.entities where code = 'JDF'
+on conflict do nothing;
+
+insert into public.departments (entity_id, code, name)
+select e.id, d.code, d.name
+from public.entities e
+cross join (values ('EXEC', 'Executive'), ('SALES', 'Sales'), ('OPS', 'Operations'), ('FIN', 'Finance & Accounting'),
+                   ('HR', 'Human Resources'), ('MKT', 'Marketing'), ('WH', 'Warehouse & Logistics'),
+                   ('MFG', 'Manufacturing'), ('QA', 'Quality Assurance')) as d(code, name)
+where e.code = 'JDF'
+on conflict do nothing;
+
+insert into public.teams (name, location_id, department_id)
+select 'Sales Team A', l.id, d.id
+from public.locations l join public.departments d on d.code = 'SALES'
+where l.code = 'KAMUNING'
+on conflict (name) do nothing;
 
 -- Levels: requirements are data so the owner can tune them (Phase 4 evaluates them).
 insert into public.levels (level, name, description, requirements, requires_signoff) values

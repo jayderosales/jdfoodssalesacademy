@@ -1,0 +1,6 @@
+node_modules
+.next
+.next-build
+supabase/*.sql
+supabase/migrations
+package-lock.json

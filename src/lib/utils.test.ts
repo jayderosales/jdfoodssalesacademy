@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { formatPHP, isHexColor, manilaToday } from "./utils";
 import { safeNext } from "./safe-redirect";
-import { navFor } from "./nav";
+import { buildNav } from "./nav";
 
 describe("safeNext", () => {
   it("allows same-site paths", () => expect(safeNext("/learn/abc")).toBe("/learn/abc"));
@@ -41,13 +41,22 @@ describe("isHexColor", () => {
   it("rejects CSS injection", () => expect(isHexColor("red;}body{display:none")).toBe(false));
 });
 
-describe("navFor", () => {
-  it("keeps the phone bar at 5 items or fewer for every role", () => {
-    for (const role of ["owner", "manager", "rep"] as const) {
-      expect(navFor(role).filter((i) => i.mobile).length).toBeLessThanOrEqual(5);
+describe("buildNav (phone bar)", () => {
+  it("keeps the phone bar at 5 items or fewer and always includes My account", () => {
+    const sets = [
+      ["academy.admin", "admin.users.view", "admin.roles.manage", "admin.settings.manage", "audit.view", "org.view"],
+      ["academy.team.manage", "academy.reports.view", "academy.learn", "org.view"],
+      ["academy.learn", "org.view"],
+      [],
+    ];
+    for (const perms of sets) {
+      const { mobile } = buildNav(new Set(perms), null);
+      expect(mobile.length).toBeLessThanOrEqual(5);
+      expect(mobile.some((i) => i.href === "/account")).toBe(true);
     }
   });
   it("never shows admin links to reps", () => {
-    expect(navFor("rep").some((i) => i.href.startsWith("/admin"))).toBe(false);
+    const { sections } = buildNav(new Set(["academy.learn", "org.view"]), "rep");
+    expect(sections.flatMap((s) => s.items).some((i) => i.href.startsWith("/admin") && i.href !== "/admin/org")).toBe(false);
   });
 });

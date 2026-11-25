@@ -1,6 +1,6 @@
 # Phase 1a — Foundation: platform
 
-Status: **draft plan, waiting for approval** (2026-11-26).
+Status: **built** (2026-11-26). See docs/demos/phase-01a.md for the click-through and CHANGELOG.md for what changed. Deviation: `profiles.role` was kept as a read-only cache instead of dropped (DECISIONS.md).
 Covers PROMPTS.md Phase 1 items 1–5 and 11 (scaffold/CI/PWA, auth, organization, RBAC + RLS, audit, app shell). Items 6–10, 12 and 13 (numbering, attachments, outbox, approvals, notifications/escalation, reusable components, CSV import) are Phase 1b.
 
 ## 1. Goal
