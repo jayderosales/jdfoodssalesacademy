@@ -1,5 +1,16 @@
 # Changelog
 
+## 2026-11-26 — Phase 1b: shared engines
+- **Document numbering** (gapless, per year), **attachments** on any record (private, 5-minute links, phone camera), **event outbox** with automatic retry and a Background jobs screen.
+- **Notifications**: rules + personal preferences, live bell (Realtime), Notifications page, mark read. Email built but switched off until Resend is set up.
+- **Escalation** in working hours (Mon–Sat 8:00–17:00 Manila, PH holidays): 24h → supervisor, 48h → CEO + executive risk feed on the dashboard. pg_cron runs it every 15 minutes.
+- **Approval engine**: amount-based policies, inbox (desktop + phone) with count in the top bar, approve / reject / return with comment, no self-approval, delegation, cancel, full audit.
+- **Petty cash requests** (reference document): up to ₱50,000 → Operations manager, above → CEO; receipts as attachments.
+- **Shared components**: DataTable (search, filters, date range, sort, column chooser, saved views, Excel export, phone cards), RecordPage, KpiCard, StatusBadge, MoneyInput, QtyWithUoM, DateRangePicker, Scanner.
+- **Import tool**: upload Excel/CSV → match columns → row-level errors → import all-or-nothing; templates for employees and locations.
+- **Settings**: approval policies, working hours & holidays, notifications & escalation, document numbering, background jobs.
+- 211 unit/DB tests. Migrations 20261202000001…04 applied to Supabase.
+
 ## 2026-11-26 — Public address
 - Vercel project now answers on **app.jdfoods.ph** (jdfoods.vercel.app was taken by another account). `NEXT_PUBLIC_SITE_URL` updated for production. Waiting on the DNS record and Supabase redirect URLs (docs/SETUP_ACCOUNTS.md).
 

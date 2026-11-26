@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
-  BarChart3, BookOpen, Building2, ClipboardCheck, Clock, FileText, Home, KeyRound, Link2, ListChecks, MessageSquare,
+  BarChart3, Bell, BookOpen, Building2, CheckSquare, ClipboardCheck, Clock, FileText, FileUp, Home, KeyRound, Link2, ListChecks, MessageSquare, Wallet,
   Settings, ShieldCheck, User, Users, UsersRound, type LucideIcon,
 } from "lucide-react";
 import type { IconName, NavItem, NavSection } from "@/lib/nav";
@@ -12,7 +12,7 @@ import { cn } from "@/lib/utils";
 const ICONS: Record<IconName, LucideIcon> = {
   home: Home, book: BookOpen, quiz: ListChecks, chat: MessageSquare, user: User, users: Users,
   team: UsersRound, review: ClipboardCheck, content: FileText, chart: BarChart3, settings: Settings, audit: ShieldCheck,
-  org: Building2, key: KeyRound, link: Link2, soon: Clock,
+  org: Building2, key: KeyRound, link: Link2, soon: Clock, approve: CheckSquare, wallet: Wallet, bell: Bell, import: FileUp,
 };
 
 export function SideNavSections({ sections }: { sections: NavSection[] }) {

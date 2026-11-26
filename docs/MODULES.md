@@ -4,7 +4,7 @@ Status: **not started** / **in progress** / **done**. Phase numbers follow the a
 
 | # | Module | Status | Phase | Notes |
 |---|---|---|---|---|
-| 1 | Core infrastructure | in progress | 1a, 1b | **1a done:** org model, RBAC + RLS, MFA, sign-in security, audit v2, app shell, CI, PWA. **1b:** numbering, attachments, outbox, import framework, shared components. |
+| 1 | Core infrastructure | in progress | 1a, 1b | **Done (1a + 1b):** org model, RBAC + RLS, MFA switch, sign-in security, audit, app shell, CI, PWA, numbering, attachments, outbox, import framework, shared components. |
 | 2 | Executive dashboard | not started | 6 | |
 | 3 | Accounting | not started | 5 | |
 | 4 | Finance | not started | 5 | Budgets, cash forecast, debt, ratios, scenarios, credit, capex |
@@ -28,7 +28,7 @@ Status: **not started** / **in progress** / **done**. Phase numbers follow the a
 | 22 | SOP management | not started | 11c | |
 | 23 | Asset management | not started | 11d | Fixed-asset accounting in 5 |
 | 24 | Customer service | not started | 10 | |
-| 25 | Approvals | not started | 1b | |
-| 26 | Notifications | in progress | 1b | Academy has a basic `notifications` table; engine + escalation to build |
+| 25 | Approvals | done | 1b | Engine, inbox, delegation, escalation; petty cash is the first document |
+| 26 | Notifications | in progress | 1b | In-app engine, live bell, escalation done; email waits for Resend |
 | 27 | Reporting | in progress | 1b, 6 | Academy reports page with CSV/PDF export exists; scheduled reports in 6 |
 | 28 | AI intelligence | in progress | 12 | Academy uses Claude for roleplay and grading with usage/cost logging; assistant + forecasting in 12 |

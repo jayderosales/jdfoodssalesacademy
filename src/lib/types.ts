@@ -54,6 +54,10 @@ export interface AppSettings {
   require_mfa_internal: boolean;
   idle_timeout_internal_minutes: number;
   idle_timeout_external_minutes: number;
+  email_enabled: boolean;
+  work_days: number[];
+  work_start: string;
+  work_end: string;
 }
 
 export const ROLE_LABEL: Record<UserRole, string> = {

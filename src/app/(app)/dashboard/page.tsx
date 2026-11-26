@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Alert, Card, CardTitle, PageHeader } from "@/components/ui";
-import { requireUser } from "@/lib/auth";
+import { can, getAccess, requireUser } from "@/lib/auth";
+import { RiskFeed } from "./risk-feed";
 import { getMyRoleNames } from "@/lib/rbac/queries";
 import { createAdminClient, createClient, serviceKeyMissing } from "@/lib/supabase/server";
 import { RepDashboard } from "./rep-dashboard";
@@ -55,6 +56,8 @@ export default async function DashboardPage({ searchParams }: { searchParams: Pr
         </div>
       )}
       <PageHeader title={`Hi, ${firstName}!`} description={teamLabel} />
+
+      {can(await getAccess(), "risk.view") && <RiskFeed />}
 
       {profile.role === "rep" && <RepDashboard profile={profile} />}
 

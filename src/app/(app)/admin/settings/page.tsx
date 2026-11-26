@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { ActionForm } from "@/components/action-form";
 import { Card, CardTitle, Field, Input, PageHeader, Select, Textarea } from "@/components/ui";
 import { can, getAccess, getSettings, requirePermission } from "@/lib/auth";
@@ -24,6 +25,22 @@ export default async function SettingsPage() {
   return (
     <>
       <PageHeader title="Settings" description="Changes are recorded in the audit log." />
+      {can(access, ["admin.settings.manage", "admin.approvals.manage"]) && (
+        <nav aria-label="More settings" className="mb-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-5">
+          {[
+            { href: "/admin/settings/approvals", label: "Approval policies", hint: "Who approves what, by amount" },
+            { href: "/admin/settings/working-hours", label: "Working hours & holidays", hint: "Used by escalation clocks" },
+            { href: "/admin/settings/notifications", label: "Notifications & escalation", hint: "Messages and the escalation ladder" },
+            { href: "/admin/settings/numbering", label: "Document numbering", hint: "Prefixes and next numbers" },
+            { href: "/admin/settings/events", label: "Background jobs", hint: "Follow-up work that failed" },
+          ].map((l) => (
+            <Link key={l.href} href={l.href} className="rounded-lg border bg-card p-3 text-sm hover:border-brand">
+              <span className="block font-medium text-brand">{l.label}</span>
+              <span className="text-xs text-muted-foreground">{l.hint}</span>
+            </Link>
+          ))}
+        </nav>
+      )}
       <div className="grid gap-4 lg:grid-cols-2">
         {can(access, "admin.settings.manage") && entity && (
           <Card>

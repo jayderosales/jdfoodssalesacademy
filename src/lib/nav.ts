@@ -3,7 +3,7 @@ import type { UserRole } from "@/lib/types";
 
 export type IconName =
   | "home" | "book" | "quiz" | "chat" | "user" | "users" | "team" | "review"
-  | "content" | "chart" | "settings" | "audit" | "org" | "key" | "link" | "soon";
+  | "content" | "chart" | "settings" | "audit" | "org" | "key" | "link" | "soon" | "approve" | "wallet" | "bell" | "import";
 
 export interface NavItem {
   href: string;
@@ -34,6 +34,8 @@ interface ModuleEntry extends NavItem {
  */
 export const MODULES: ModuleEntry[] = [
   { section: "", href: "/dashboard", label: "Home", icon: "home", mobile: 1 },
+  { section: "", href: "/approvals", label: "Approvals", icon: "approve", perm: ["petty_cash.request", "approvals.view_all", "readonly.all"], mobile: 3 },
+  { section: "", href: "/requests/petty-cash", label: "Petty cash", icon: "wallet", perm: ["petty_cash.request", "petty_cash.view_all", "readonly.all"] },
 
   { section: "Training", href: "/learn", label: "Learn", icon: "book", perm: ["academy.learn", "academy.team.manage"], mobile: 2 },
   { section: "Training", href: "/quizzes", label: "Quizzes", icon: "quiz", perm: ["academy.learn"], mobile: 4 },
@@ -50,6 +52,7 @@ export const MODULES: ModuleEntry[] = [
   { section: "Administration", href: "/admin/org", label: "Organization", icon: "org", perm: ["admin.org.manage", "employees.manage", "admin.users.view", "readonly.all"] },
   { section: "Administration", href: "/admin/settings", label: "Settings", icon: "settings", perm: ["admin.settings.manage", "admin.security.manage", "academy.admin"], mobile: 8 },
   { section: "Administration", href: "/admin/audit", label: "Audit log", icon: "audit", perm: ["audit.view"] },
+  { section: "Administration", href: "/admin/import", label: "Import data", icon: "import", perm: ["employees.manage", "admin.org.manage"] },
 
   { section: "", href: "/account", label: "My account", icon: "user", mobile: 5 },
 ];

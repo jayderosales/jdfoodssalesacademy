@@ -55,3 +55,11 @@ Format: date — decision — why — alternatives considered.
 - **Decision:** `app_settings.require_mfa_internal` set to false on the live project. The feature stays in the code and can be switched back on in Settings → Sign-in security. New environments still start with it on.
 - **Why:** owner asked to remove it.
 - **Risk accepted:** a stolen staff password alone gives access. Revisit before Phase 5 (accounting) and Phase 9 (payroll) go live, or at least require it for admins.
+
+### 2026-11-26 — Phase 1b choices
+- **Escalation counts working hours** (Mon–Sat 8:00–17:00 Manila, skipping holidays), editable in Settings. Owner accepted the recommendation.
+- **Email deferred**: notifications are queued per preference but marked "skipped" until app_settings.email_enabled is turned on with a Resend account; the sender will be a Supabase Edge Function (the Vercel domain is behind deployment protection, which blocks calls from the database).
+- **Notifications are delivered immediately** by a trigger on the event outbox (in a sub-transaction), with pg_cron retrying failures every minute; a broken handler never blocks the business change.
+- **All document numbers are gapless** (row-locked counter inside the document's transaction). Fine at JD Foods' volume.
+- **Delegates** must be active staff accounts; they don't need the delegator's role. Both names are recorded on every decision.
+- **Petty cash** is approval-only for now; cash release and liquidation arrive with Phase 5 (finance).

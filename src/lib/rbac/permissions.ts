@@ -23,6 +23,11 @@ export const PERMISSIONS = {
   "portal.customer": { module: "portal", restricted: false },
   "portal.distributor": { module: "portal", restricted: false },
   "portal.supplier": { module: "portal", restricted: false },
+  "risk.view": { module: "admin", restricted: false },
+  "approvals.view_all": { module: "approvals", restricted: false },
+  "admin.approvals.manage": { module: "admin", restricted: false },
+  "petty_cash.request": { module: "finance", restricted: false },
+  "petty_cash.view_all": { module: "finance", restricted: false },
 } as const satisfies Record<string, { module: string; restricted: boolean }>;
 
 export type Permission = keyof typeof PERMISSIONS;
@@ -35,6 +40,8 @@ export const MODULE_LABELS: Record<string, string> = {
   org: "Organization",
   academy: "Training / Academy",
   portal: "Portals",
+  approvals: "Approvals",
+  finance: "Finance",
 };
 
 /** Built-in role codes (public.roles where is_system). */

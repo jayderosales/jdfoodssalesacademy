@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { CheckSquare } from "lucide-react";
 import { BottomNav, ModuleTabs, SideNavSections } from "@/components/app-nav";
 import { CommandPalette } from "@/components/command-palette";
 import { IdleTimeout } from "@/components/idle-timeout";
@@ -16,6 +17,13 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   const [settings, access, roleNames] = await Promise.all([getSettings(), getAccess(), getMyRoleNames(profile.id)]);
   const { sections, mobile } = buildNav(access.permissions, profile.role);
   const roleLabel = roleNames.join(", ") || "No role";
+  const supabaseForCounts = await createClient();
+  const { data: myIds } = await supabaseForCounts.rpc("my_approver_ids");
+  const { count: approvalsWaiting } = await supabaseForCounts
+    .from("approval_steps")
+    .select("id", { count: "exact", head: true })
+    .eq("status", "pending")
+    .overlaps("approver_ids", (myIds as string[] | null) ?? [profile.id]);
 
   // "last active" feeds the at-risk flag; update at most every 10 minutes.
   if (!profile.last_active_at || Date.now() - new Date(profile.last_active_at).getTime() > ACTIVITY_THROTTLE_MS) {
@@ -55,6 +63,19 @@ export default async function AppLayout({ children }: { children: React.ReactNod
           <div className="hidden md:block" />
           <div className="flex items-center gap-2">
             <CommandPalette items={paletteItems(access.permissions, profile.role)} />
+            <Link
+              href="/approvals"
+              className="relative flex rounded-lg p-2 hover:bg-muted"
+              aria-label={`Approvals${approvalsWaiting ? `, ${approvalsWaiting} waiting for you` : ""}`}
+              title="Approvals waiting for you"
+            >
+              <CheckSquare className="size-5" aria-hidden />
+              {!!approvalsWaiting && (
+                <span className="absolute -right-0.5 -top-0.5 flex min-w-5 items-center justify-center rounded-full bg-amber-500 px-1 text-[10px] font-bold text-white">
+                  {approvalsWaiting > 99 ? "99+" : approvalsWaiting}
+                </span>
+              )}
+            </Link>
             <NotificationBell userId={profile.id} />
             <details className="relative">
               <summary className="flex cursor-pointer list-none items-center gap-2 rounded-lg px-2 py-1 text-sm hover:bg-muted">

@@ -10,25 +10,26 @@ type Db = Awaited<ReturnType<typeof createTestDb>>;
 let t: Db;
 
 /** What each built-in role is expected to hold (grants_all roles hold everything). */
+const PC = "petty_cash.request";
 const EXPECTED: Record<SystemRole, string[] | "all"> = {
   super_admin: "all",
   ceo: "all",
-  cfo: ["org.view"],
-  coo: ["org.view"],
-  cmo: ["org.view"],
-  operations_manager: ["org.view"],
-  sales_head: ["org.view", "academy.team.manage", "academy.reports.view", "academy.learn"],
-  hr_head: ["org.view", "employees.manage", "admin.users.view", "academy.reports.view"],
-  accounting_officer: ["org.view"],
-  sales_rep: ["org.view", "academy.learn"],
-  warehouse: ["org.view"],
-  manufacturing: ["org.view"],
-  qa: ["org.view"],
-  creative: ["org.view"],
-  trainer: ["org.view", "academy.team.manage", "academy.reports.view"],
-  employee: ["org.view"],
-  driver: ["org.view"],
-  auditor: ["readonly.all", "audit.view", "org.view", "admin.users.view", "academy.reports.view"],
+  cfo: ["org.view", PC, "petty_cash.view_all", "approvals.view_all"],
+  coo: ["org.view", PC],
+  cmo: ["org.view", PC],
+  operations_manager: ["org.view", PC, "petty_cash.view_all"],
+  sales_head: ["org.view", "academy.team.manage", "academy.reports.view", "academy.learn", PC],
+  hr_head: ["org.view", "employees.manage", "admin.users.view", "academy.reports.view", PC],
+  accounting_officer: ["org.view", PC, "petty_cash.view_all"],
+  sales_rep: ["org.view", "academy.learn", PC],
+  warehouse: ["org.view", PC],
+  manufacturing: ["org.view", PC],
+  qa: ["org.view", PC],
+  creative: ["org.view", PC],
+  trainer: ["org.view", "academy.team.manage", "academy.reports.view", PC],
+  employee: ["org.view", PC],
+  driver: ["org.view", PC],
+  auditor: ["readonly.all", "audit.view", "org.view", "admin.users.view", "academy.reports.view", PC, "approvals.view_all"],
   customer: ["portal.customer"],
   distributor: ["portal.distributor"],
   supplier: ["portal.supplier"],
@@ -181,7 +182,7 @@ describe("granting roles", () => {
     await t.createUser(mgr, "usermgr@x.ph", []);
     await t.createUser(target, "target2@x.ph", []);
     const roleId = (await t.as<{ id: string }>(userOf.super_admin, `insert into public.roles (code, name) values ('user_manager', 'User manager') returning id`))[0].id;
-    await t.as(userOf.super_admin, `insert into public.role_permissions (role_id, permission_code) values ($1, 'admin.users.manage'), ($1, 'org.view')`, [roleId]);
+    await t.as(userOf.super_admin, `insert into public.role_permissions (role_id, permission_code) values ($1, 'admin.users.manage'), ($1, 'org.view'), ($1, 'petty_cash.request')`, [roleId]);
     await t.as(userOf.super_admin, `insert into public.user_roles (user_id, role_id, granted_by) values ($1, $2, $3)`, [mgr, roleId, userOf.super_admin]);
 
     await t.as(mgr, `insert into public.user_roles (user_id, role_id, granted_by) select $1, id, $2 from public.roles where code = 'employee'`, [target, mgr]);
