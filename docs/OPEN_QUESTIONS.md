@@ -47,6 +47,10 @@ Answer inline under each question (or in chat). Answered questions move to the b
 - **Lot number format:** how are lots numbered today (e.g. date + line + batch)? The report accepts any text for now and can suggest the format once known.
 - **Next step:** when should production reports start moving stock (finished goods in, materials out)? That needs the recipe/BOM per product.
 
+## CEO reports
+- **Morning email:** switch on email (Resend key + Settings → email) so the 7:00 summary arrives by email, not just in the bell.
+- **Targets:** enter this year's monthly sales targets (CEO reports → Targets), and per-rep targets if wanted.
+
 ## Other open items (not blocking Phase 1)
 
 - **Supabase Auth settings to turn on** (dashboard → Authentication): leaked-password protection (advisor warning); session inactivity timeout / time-box (Pro plan). TOTP MFA is on by default.

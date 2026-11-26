@@ -62,6 +62,14 @@ export const MODULES: ModuleEntry[] = [
   { section: "Inventory", href: "/inventory/reorder", label: "Reorder", icon: "chart", perm: ["inventory.reorder.manage", "inventory.view_cost"] },
   { section: "Inventory", href: "/inventory/scan", label: "Scan", icon: "scan", perm: ["inventory.view"] },
 
+  { section: "CEO reports", href: "/ceo", label: "Overview", icon: "gauge", perm: ["ceo.reports.view"] },
+  { section: "CEO reports", href: "/ceo/sales", label: "Sales", icon: "chart", perm: ["ceo.reports.view"] },
+  { section: "CEO reports", href: "/ceo/production", label: "Production", icon: "factory", perm: ["ceo.reports.view"] },
+  { section: "CEO reports", href: "/ceo/fulfilment", label: "Incomplete orders", icon: "truck", perm: ["ceo.reports.view"] },
+  { section: "CEO reports", href: "/ceo/receivables", label: "Receivables", icon: "users", perm: ["ceo.reports.view"] },
+  { section: "CEO reports", href: "/ceo/payables", label: "Payables", icon: "wallet", perm: ["ceo.reports.view"] },
+  { section: "CEO reports", href: "/ceo/training", label: "Training", icon: "book", perm: ["ceo.reports.view"] },
+  { section: "CEO reports", href: "/ceo/targets", label: "Targets", icon: "target", perm: ["ceo.reports.view"] },
   { section: "Manufacturing", href: "/manufacturing", label: "Daily production", icon: "clipboard", perm: ["production.report", "production.view", "readonly.all"], match: ["/manufacturing"] },
   { section: "Sales", href: "/sales", label: "Overview", icon: "gauge", perm: ["sales.view", "sales.fulfil", "sales.payments.confirm"], mobile: 2 },
   { section: "Sales", href: "/sales/orders", label: "Orders", icon: "cart", perm: ["sales.view", "sales.orders.create"] },
@@ -101,9 +109,7 @@ export const MODULES: ModuleEntry[] = [
 ];
 
 /** Modules planned in docs/MODULES.md, shown as "coming soon" to administrators only. */
-export const UPCOMING_MODULES = [
-  { slug: "command-center", label: "CEO Command Center", phase: "6" },
-];
+export const UPCOMING_MODULES: { slug: string; label: string; phase: string }[] = [];
 
 function visibleModules(perms: ReadonlySet<string>, academyRole: UserRole | null) {
   return MODULES.filter((m) => !m.perm || m.perm.some((p) => perms.has(p))).map((m) => ({
@@ -128,6 +134,7 @@ export const GROUPED: Record<string, { label: string; icon: IconName }> = {
   Procurement: { label: "Procurement", icon: "truck" },
   Accounting: { label: "Accounting", icon: "wallet" },
   Manufacturing: { label: "Manufacturing", icon: "factory" },
+  "CEO reports": { label: "CEO reports", icon: "chart" },
 };
 
 export function buildNav(perms: ReadonlySet<string>, academyRole: UserRole | null): { sections: NavSection[]; mobile: NavItem[] } {
@@ -142,7 +149,7 @@ export function buildNav(perms: ReadonlySet<string>, academyRole: UserRole | nul
   const sections: NavSection[] = [{ items: top }];
   const admin = visible.filter((m) => m.section === "Administration");
   if (admin.length) sections.push({ title: "Administration", items: admin });
-  if (perms.has("admin.roles.manage")) {
+  if (perms.has("admin.roles.manage") && UPCOMING_MODULES.length) {
     sections.push({
       title: "Coming soon",
       items: UPCOMING_MODULES.map((u) => ({ href: `/modules/${u.slug}`, label: u.label, icon: "soon" as const })),

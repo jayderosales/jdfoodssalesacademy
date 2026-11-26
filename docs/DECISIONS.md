@@ -103,3 +103,8 @@ Format: date — decision — why — alternatives considered.
 - **Decision:** Manufacturing starts with a daily production report: output per product and lot, submitted by the supervisor and locked on submit (no approval). It doesn't move stock. It emits a `production.reported` event, so the full manufacturing phase can later receive finished goods and issue materials from it.
 - **Why:** Owner's answers: record only for now, output per product + lot, supervisor submits and it's final. Keeps the stock ledger and costing unchanged until recipes and material use are defined.
 - **Alternatives:** Posting output to stock now (finished goods would be costed without material usage); an approval step (slower, not wanted).
+
+## 2026-11-26 — CEO reports: aggregates in the database, CEO only
+- **Decision:** The Command Center reads aggregates from Postgres functions (`ceo_snapshot`, `ceo_sales_daily`, `ceo_sales_breakdown`, `ceo_rep_performance`) that check `ceo.reports.view` (CEO role only). Sales are counted at release (Ready for pickup), the same moment the ledger books the sale, and include VAT as invoiced. Gross profit comes from the ledger. Monthly sales targets (company and per rep) live in `sales_targets`. The morning summary goes through the notification engine, so it works in-app now and by email once Resend is on.
+- **Why:** Owner's answers: all areas on the first screen, daily email, CEO only. Database aggregation avoids row limits and keeps every figure consistent with the module screens (receivables and payables share one loader).
+- **Alternatives:** A BI tool on a replica (another vendor, numbers drift from the app); counting sales at order placement (would include unpaid and cancelled orders).

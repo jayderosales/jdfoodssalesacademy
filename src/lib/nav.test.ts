@@ -32,8 +32,8 @@ describe("buildNav", () => {
     expect(n.all).toContain("/admin/users");
     expect(n.all).not.toContain("/admin/settings");
   });
-  it("shows upcoming modules only to role administrators", () => {
-    expect(hrefs(["admin.roles.manage"]).titles).toContain("Coming soon");
+  it("shows upcoming modules only to role administrators, and hides the section when nothing is upcoming", () => {
+    expect(hrefs(["admin.roles.manage"]).titles).not.toContain("Coming soon"); // every planned module is built
     expect(hrefs(["admin.users.view"]).titles).not.toContain("Coming soon");
   });
   it("labels the team tab 'All reps' for Academy admins", () => {

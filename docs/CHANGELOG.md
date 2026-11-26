@@ -1,5 +1,16 @@
 # Changelog
 
+## 2026-11-26 — Phase 6: CEO reports (Command Center)
+- New **CEO reports** section (CEO only). **Overview**: sales today, month to date and year to date (vs last month), gross profit and margin, sales vs target with the month's pace, a 30-day daily sales chart, cash and bank, customers overdue, supplier bills due in 7 days, payments to confirm, inventory value, out of stock / below minimum, near-expiry, today's production, orders waiting for stock, approvals waiting for you, escalated items, unposted accounting events. Every number links to its details.
+- **Sales**: daily, month to date, year to date, any date range, by channel, brand, rep, top customers and top products, vs monthly and year-to-date targets.
+- **Production**: the daily manufacturing production report (by day, with lots and the supervisor's report) and a 7-day grid by product.
+- **Incomplete orders**: the daily incomplete-fulfilment report (paid orders waiting for stock, missing items, days waiting) and the products still to make or buy.
+- **Receivables** and **Payables** reports: aging summary, by customer / supplier, bills due within 7 days, payments waiting for approval or release. Uses the same figures as Accounting.
+- **Training**: each rep's skill score, level, at-risk flag, quizzes passed, roleplays in the last 30 days, last training, next to sales this month vs their target.
+- **Targets**: monthly company targets for the year and per-rep targets. Reps can see their own target.
+- **Morning summary** at 7:00 Manila: yesterday's sales, month and year to date vs target, collections, overdue customers, bills due, approvals, production and stock alerts. Shows in the notification bell now and arrives by email once email (Resend) is switched on.
+- 323 tests (3 new CEO-report DB tests). Migration 20261209000001 applied to Supabase.
+
 ## 2026-11-26 — Manufacturing: daily production report
 - New **Manufacturing** tab (sidebar) for the production supervisor: start the day's report (date, plant, shift/line), add what was made (finished good, quantity and unit, lot no., mfg date, expiry), then **Submit**, which locks it. No approval step.
 - Expiry defaults to mfg date + the product's shelf life. Only finished goods can be reported, and the same product + lot can't be reported twice. Photos can be attached.

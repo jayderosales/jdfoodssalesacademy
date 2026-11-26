@@ -66,6 +66,7 @@ export const PERMISSIONS = {
   "transmittals.receive": { module: "accounting", restricted: false },
   "production.report": { module: "manufacturing", restricted: false },
   "production.view": { module: "manufacturing", restricted: false },
+  "ceo.reports.view": { module: "executive", restricted: false },
 } as const satisfies Record<string, { module: string; restricted: boolean }>;
 
 export type Permission = keyof typeof PERMISSIONS;
@@ -85,6 +86,7 @@ export const MODULE_LABELS: Record<string, string> = {
   procurement: "Procurement",
   accounting: "Accounting & finance",
   manufacturing: "Manufacturing",
+  executive: "Executive reports",
 };
 
 /** Built-in role codes (public.roles where is_system). */

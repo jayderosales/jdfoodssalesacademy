@@ -2,11 +2,12 @@ import Link from "next/link";
 import { KpiCard } from "@/components/shared/kpi-card";
 import { Card, CardTitle, PageHeader } from "@/components/ui";
 import { requirePermission } from "@/lib/auth";
-import { ageItems, type OpenItem, totals } from "@/lib/accounting/aging";
+import { totals } from "@/lib/accounting/aging";
+import { loadReceivables } from "@/lib/accounting/open-items";
 import { formatMoney, fromCentavos } from "@/lib/money";
 import { createClient } from "@/lib/supabase/server";
 import { manilaToday } from "@/lib/utils";
-import { AgingTable, BooksBanner, cents } from "../parts";
+import { AgingTable, BooksBanner } from "../parts";
 
 export const metadata = { title: "Receivables" };
 
@@ -15,26 +16,7 @@ export default async function ReceivablesPage() {
   await requirePermission(["ar.manage", "accounting.view", "finance.reports.view"]);
   const today = manilaToday();
   const supabase = await createClient();
-  const [{ data: orders }, { data: openings }, { data: onAccount }] = await Promise.all([
-    supabase.from("sales_orders").select("id, number, customer_id, total, paid_amount, due_date, ready_at").in("status", ["ready_for_pickup", "dispatched", "delivered"]).limit(5000),
-    supabase.from("customers").select("id, opening_balance, opening_due_date, created_at").gt("opening_balance", 0),
-    supabase.from("payments").select("customer_id, amount").eq("status", "confirmed").is("order_id", null).limit(5000),
-  ]);
-  type O = { id: string; number: string; customer_id: string; total: string; paid_amount: string; due_date: string | null; ready_at: string | null };
-  const items: OpenItem[] = [];
-  for (const o of (orders as O[] | null) ?? []) {
-    if (Number(o.paid_amount) >= Number(o.total)) continue;
-    const issued = (o.ready_at ?? today).slice(0, 10);
-    items.push({ key: o.id, party: o.customer_id, label: o.number, date: issued, due: o.due_date ?? issued, amount: cents(o.total), paid: cents(o.paid_amount) });
-  }
-  for (const c of (openings as { id: string; opening_balance: string; opening_due_date: string | null; created_at: string }[] | null) ?? []) {
-    const d = c.opening_due_date ?? c.created_at.slice(0, 10);
-    items.push({ key: `opening:${c.id}`, party: c.id, label: "Opening balance", date: d, due: d, amount: cents(c.opening_balance), paid: 0n });
-  }
-  const rows = ageItems(items, ((onAccount as { customer_id: string; amount: string }[] | null) ?? []).map((p) => ({ party: p.customer_id, amount: cents(p.amount) })), today);
-  const ids = rows.map((r) => r.party);
-  const { data: custs } = ids.length ? await supabase.from("customers").select("id, name, code").in("id", ids) : { data: [] };
-  const names = new Map(((custs as { id: string; name: string; code: string }[] | null) ?? []).map((c) => [c.id, `${c.name}${c.code ? ` (${c.code})` : ""}`]));
+  const { rows, names } = await loadReceivables(supabase, today);
   const t = totals(rows);
   const late = t.total - t.buckets.current;
   const m = (c: bigint) => formatMoney(fromCentavos(c));

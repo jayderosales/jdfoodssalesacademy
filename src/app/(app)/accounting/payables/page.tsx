@@ -3,12 +3,13 @@ import { ActionForm } from "@/components/action-form";
 import { KpiCard } from "@/components/shared/kpi-card";
 import { Card, CardTitle, Field, Input, PageHeader, Select, Table, Td, Th } from "@/components/ui";
 import { can, getAccess, requirePermission } from "@/lib/auth";
-import { ageItems, type OpenItem, totals } from "@/lib/accounting/aging";
+import { totals } from "@/lib/accounting/aging";
+import { loadPayables } from "@/lib/accounting/open-items";
 import { formatMoney, fromCentavos } from "@/lib/money";
 import { createClient } from "@/lib/supabase/server";
 import { formatDate, manilaToday } from "@/lib/utils";
 import { createSupplierPayment } from "../actions";
-import { accounts, AgingTable, BooksBanner, cents, PAY_STATUS } from "../parts";
+import { accounts, AgingTable, BooksBanner, PAY_STATUS } from "../parts";
 
 export const metadata = { title: "Payables" };
 
@@ -19,20 +20,10 @@ export default async function PayablesPage() {
   const access = await getAccess();
   const today = manilaToday();
   const supabase = await createClient();
-  const [{ data: invs }, { data: openings }, { data: pays }] = await Promise.all([
-    supabase.from("supplier_invoices").select("id, number, invoice_no, supplier_id, invoice_date, due_date, total, paid_amount").in("status", ["matched", "approved"]).limit(5000),
-    supabase.from("suppliers").select("id, opening_balance, created_at").gt("opening_balance", 0),
+  const [{ rows, names }, { data: pays }] = await Promise.all([
+    loadPayables(supabase, today),
     supabase.from("supplier_payments").select("id, number, pay_date, status, gross, ewt_amount, net_paid, suppliers(name)").order("created_at", { ascending: false }).limit(100),
   ]);
-  type I = { id: string; number: string; invoice_no: string; supplier_id: string; invoice_date: string; due_date: string | null; total: string; paid_amount: string };
-  const items: OpenItem[] = ((invs as I[] | null) ?? []).map((i) => ({ key: i.id, party: i.supplier_id, label: `Invoice ${i.invoice_no}`, date: i.invoice_date, due: i.due_date ?? i.invoice_date, amount: cents(i.total), paid: cents(i.paid_amount) }));
-  for (const s of (openings as { id: string; opening_balance: string; created_at: string }[] | null) ?? []) {
-    items.push({ key: `opening:${s.id}`, party: s.id, label: "Opening balance", date: s.created_at.slice(0, 10), due: s.created_at.slice(0, 10), amount: cents(s.opening_balance), paid: 0n });
-  }
-  const rows = ageItems(items, [], today);
-  const ids = rows.map((r) => r.party);
-  const { data: sups } = ids.length ? await supabase.from("suppliers").select("id, name, code").in("id", ids) : { data: [] };
-  const names = new Map(((sups as { id: string; name: string; code: string }[] | null) ?? []).map((s) => [s.id, s.name]));
   const t = totals(rows);
   const dueSoon = rows.flatMap((r) => r.items).filter((i) => i.bucket === "current" && i.due <= new Date(Date.parse(`${today}T00:00:00Z`) + 7 * 86_400_000).toISOString().slice(0, 10)).reduce((s, i) => s + i.open, 0n);
   const m = (c: bigint) => formatMoney(fromCentavos(c));

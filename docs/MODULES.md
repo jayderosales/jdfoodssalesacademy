@@ -5,7 +5,7 @@ Status: **not started** / **in progress** / **done**. Phase numbers follow the a
 | # | Module | Status | Phase | Notes |
 |---|---|---|---|---|
 | 1 | Core infrastructure | in progress | 1a, 1b | **Done (1a + 1b):** org model, RBAC + RLS, MFA switch, sign-in security, audit, app shell, CI, PWA, numbering, attachments, outbox, import framework, shared components. **Scan a document** (AI photo encoding into drafts, 2026-11-26). |
-| 2 | Executive dashboard | not started | 6 | |
+| 2 | Executive dashboard | built (Phase 6) | 6 | CEO reports: overview, sales (daily/MTD/YTD, vs target), production, incomplete fulfilment, receivables, payables, training status, targets; 7:00 morning summary. CEO only. |
 | 3 | Accounting | in progress | 5a | **Built (5a), parallel run:** chart of accounts, automatic postings from sales, payments, stock and purchases, manual journals (CEO approval), reversals, periods (close/lock), AR and AP aging, supplier payments with EWT (CEO approval), petty cash release, bank statement import and reconciliation, P&L, balance sheet, trial balance, VAT and 2307 reports, go-live (start books + opening balances). Document transmittals, petty cash liquidation with expense receipts. Waiting for accountant review. |
 | 4 | Finance | not started | 5b | Budgets, cash forecast, debt, ratios, scenarios, credit, capex |
 | 5 | HRIS | in progress | 1a, 9 | Basic employee profile + reporting line done (1a); full HRIS in Phase 9 |
