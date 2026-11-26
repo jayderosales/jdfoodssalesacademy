@@ -47,13 +47,13 @@ export async function saveProduct(_: FormState, form: FormData): Promise<FormSta
   };
   const supabase = await createClient();
   if (id) {
-    const { error } = await supabase.from("products").update(row).eq("id", id);
+    const { error } = await supabase.from("academy_products").update(row).eq("id", id);
     if (error) return { error: error.message };
     revalidatePath("/admin/content/products");
     revalidatePath(`/admin/content/products/${id}`);
     return { message: "Product saved." };
   }
-  const { data, error } = await supabase.from("products").insert(row).select("id").single();
+  const { data, error } = await supabase.from("academy_products").insert(row).select("id").single();
   if (error) return { error: error.message };
   redirect(`/admin/content/products/${data.id}`);
 }

@@ -50,7 +50,7 @@ export async function getScenario(id: string): Promise<Scenario | null> {
 
 export async function productFactsFor(ids: string[]): Promise<string> {
   if (!ids.length) return formatProductFacts([]);
-  const { data } = await createAdminClient().from("products").select("*").in("id", ids).eq("active", true);
+  const { data } = await createAdminClient().from("academy_products").select("*").in("id", ids).eq("active", true);
   return formatProductFacts((data ?? []) as ProductFacts[]);
 }
 

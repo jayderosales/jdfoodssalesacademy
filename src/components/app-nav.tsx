@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
-  BarChart3, Bell, BookOpen, Building2, CheckSquare, ClipboardCheck, Clock, FileText, FileUp, Home, KeyRound, Link2, ListChecks, MessageSquare, Wallet,
+  BarChart3, Bell, BookOpen, Building2, CheckSquare, ClipboardCheck, ClipboardList, Clock, FileText, FileUp, Gauge, Home, Inbox, KeyRound, Layers, Link2, ListChecks, MessageSquare, Package, ScanLine, SlidersHorizontal, Tag, Truck, Wallet,
   Settings, ShieldCheck, User, Users, UsersRound, type LucideIcon,
 } from "lucide-react";
 import type { IconName, NavItem, NavSection } from "@/lib/nav";
@@ -13,6 +13,7 @@ const ICONS: Record<IconName, LucideIcon> = {
   home: Home, book: BookOpen, quiz: ListChecks, chat: MessageSquare, user: User, users: Users,
   team: UsersRound, review: ClipboardCheck, content: FileText, chart: BarChart3, settings: Settings, audit: ShieldCheck,
   org: Building2, key: KeyRound, link: Link2, soon: Clock, approve: CheckSquare, wallet: Wallet, bell: Bell, import: FileUp,
+  box: Package, tag: Tag, layers: Layers, truck: Truck, inbox: Inbox, sliders: SlidersHorizontal, clipboard: ClipboardList, scan: ScanLine, gauge: Gauge,
 };
 
 export function SideNavSections({ sections }: { sections: NavSection[] }) {
@@ -40,11 +41,13 @@ function itemActive(pathname: string, item: NavItem) {
 export function ModuleTabs({ items, label }: { items: NavItem[]; label: string }) {
   const pathname = usePathname();
   if (!items.some((i) => isActive(pathname, i.href))) return null;
+  // the most specific matching tab wins (so "/inventory" isn't highlighted on "/inventory/products")
+  const best = items.filter((i) => isActive(pathname, i.href)).sort((a, b) => b.href.length - a.href.length)[0]?.href;
   return (
     <nav aria-label={label} className="-mx-4 mb-6 flex gap-1 overflow-x-auto border-b px-4 md:mx-0 md:px-0 print:hidden">
       {items.map((item) => {
         const Icon = ICONS[item.icon];
-        const active = isActive(pathname, item.href);
+        const active = item.href === best;
         return (
           <Link
             key={item.href}

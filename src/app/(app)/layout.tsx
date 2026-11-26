@@ -6,7 +6,7 @@ import { IdleTimeout } from "@/components/idle-timeout";
 import { Logo } from "@/components/logo";
 import { NotificationBell } from "@/components/notification-bell";
 import { getAccess, getSettings, requireUser } from "@/lib/auth";
-import { buildNav, paletteItems, trainingTabs } from "@/lib/nav";
+import { buildNav, GROUPED, paletteItems, sectionTabs } from "@/lib/nav";
 import { getMyRoleNames } from "@/lib/rbac/queries";
 import { createClient, serviceKeyMissing } from "@/lib/supabase/server";
 
@@ -104,7 +104,9 @@ export default async function AppLayout({ children }: { children: React.ReactNod
               redeploy. (Only administrators see this message.)
             </div>
           )}
-          <ModuleTabs items={trainingTabs(access.permissions, profile.role)} label="Training" />
+          {Object.keys(GROUPED).map((g) => (
+            <ModuleTabs key={g} items={sectionTabs(g, access.permissions, profile.role)} label={g} />
+          ))}
           {children}
         </main>
       </div>

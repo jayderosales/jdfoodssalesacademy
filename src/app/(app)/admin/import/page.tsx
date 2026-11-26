@@ -8,7 +8,7 @@ import { ImportWizard } from "./import-wizard";
 export const metadata = { title: "Import data" };
 
 export default async function ImportPage() {
-  await requirePermission(["employees.manage", "admin.org.manage"]);
+  await requirePermission(["employees.manage", "admin.org.manage", "inventory.products.manage", "inventory.receive"]);
   const access = await getAccess();
   const allowed = TEMPLATES.filter((t) => can(access, t.perm)).map(({ key, label, description, fields }) => ({ key, label, description, fields }));
   const supabase = await createClient();

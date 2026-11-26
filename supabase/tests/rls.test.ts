@@ -52,7 +52,7 @@ describe("schema & seed", () => {
     const count = async (sql: string) => Number((await db.query<{ n: number }>(sql)).rows[0].n);
     expect(await count(`select count(*) n from public.modules`)).toBe(6);
     expect(await count(`select count(*) n from public.lessons where published`)).toBe(37);
-    expect(await count(`select count(*) n from public.products where not verified`)).toBe(16);
+    expect(await count(`select count(*) n from public.academy_products where not verified`)).toBe(16);
     expect(await count(`select count(*) n from public.quizzes`)).toBe(7);
     expect(await count(`select count(*) n from public.questions where status = 'approved'`)).toBe(50);
     // every objective question has a well-formed answer key
@@ -68,7 +68,7 @@ describe("schema & seed", () => {
     const rows = (await db.query<{ n: number; rubric: number; bad_products: number }>(`
       select count(*) n,
              count(*) filter (where rubric_id is not null) rubric,
-             (select count(*) from public.scenarios s, unnest(s.product_ids) pid where not exists (select 1 from public.products p where p.id = pid)) bad_products
+             (select count(*) from public.scenarios s, unnest(s.product_ids) pid where not exists (select 1 from public.academy_products p where p.id = pid)) bad_products
       from public.scenarios`)).rows[0];
     expect(Number(rows.n)).toBe(8);
     expect(Number(rows.rubric)).toBe(8);

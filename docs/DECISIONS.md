@@ -63,3 +63,11 @@ Format: date — decision — why — alternatives considered.
 - **All document numbers are gapless** (row-locked counter inside the document's transaction). Fine at JD Foods' volume.
 - **Delegates** must be active staff accounts; they don't need the delegator's role. Both names are recorded on every decision.
 - **Petty cash** is approval-only for now; cash release and liquidation arrive with Phase 5 (finance).
+
+### 2026-11-26 — Product catalog and locations (Phase 2)
+- **One SKU per size**, sold by the piece. SKU = price-list code + size (P1-GAL, P1-1L, P1-500ML, P1-350ML). Items without a code in the price list get a generated code by series (AR-SYR-…, MK-…, EQ-…, MAT-…).
+- **Brands**: JD Foods, ThyChef, McKeith, Arkadia, Catcher Gourmet (+ other). JD Foods/ThyChef = finished goods (produced); McKeith/Arkadia/Catcher = merchandise (resold) until confirmed.
+- **Equipment and materials** are stocked merchandise; **marketing layouts/designs** are services (no stock).
+- **Pre-order items** (ThyChef 25 kg boxes) are normal SKUs flagged pre-order with a lead time; they can be sold without stock on hand.
+- **Locations**: Plaridel FG warehouse (sellable stock) and Plaridel production store (raw materials/packaging, not sellable). The courier pickup point is a flag on a location, not a stock location.
+- **SRP** is stored on the product for now (retail reference price); full price lists come in Phase 3.

@@ -12,7 +12,7 @@ Status: **not started** / **in progress** / **done**. Phase numbers follow the a
 | 6 | Payroll | not started | 9 | |
 | 7 | Sales & CRM | not started | 3a | |
 | 8 | Client portal | not started | 7 | Incl. Business Growth Center |
-| 9 | Inventory | not started | 2 | Incl. warehouse, batches, mobile PWA |
+| 9 | Inventory | built (Phase 2) | 2 | Products, costs/prices, ledger, batches/QA, receipts, transfers, adjustments, counts, reorder, scan |
 | 10 | Procurement | not started | 4 | Incl. suppliers, importation, landed cost |
 | 11 | Manufacturing | not started | 8 | |
 | 12 | Quality & FDA | not started | 8 | Simple QA release in 2/4 |

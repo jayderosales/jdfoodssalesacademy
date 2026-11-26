@@ -107,6 +107,73 @@ export const TEMPLATES: ImportTemplate[] = [
   },
 ];
 
+const money = z
+  .string()
+  .trim()
+  .optional()
+  .transform((v, ctx) => {
+    if (!v) return undefined;
+    const n = v.replace(/[₱,\s]/g, "");
+    if (!/^\d+(\.\d{1,6})?$/.test(n)) ctx.addIssue({ code: "custom", message: "Use a number like 256 or 85.50." });
+    return n;
+  });
+const positiveQty = z
+  .string()
+  .trim()
+  .transform((v, ctx) => {
+    const n = v.replace(/,/g, "");
+    if (!/^\d+(\.\d{1,4})?$/.test(n) || Number(n) <= 0) ctx.addIssue({ code: "custom", message: "Use a quantity greater than 0." });
+    return n;
+  });
+
+TEMPLATES.push(
+  {
+    key: "products",
+    label: "Products",
+    description: "Adds new products and updates existing ones (matched by SKU). Brand and category by name; new categories are created. Cost is optional (per base unit).",
+    rpc: "import_products",
+    perm: "inventory.products.manage",
+    fields: [
+      { key: "sku", label: "SKU", required: true, aliases: ["code", "item code"], example: "P1-1L", schema: z.string().trim().toUpperCase().regex(/^[A-Z0-9][A-Z0-9-]{0,39}$/, "Capital letters, numbers and dashes.") },
+      { key: "name", label: "Name", required: true, aliases: ["product", "description", "product name"], example: "Premium Sweet Barbecue 1 liter", schema: text(200).min(2, "Required.") },
+      { key: "brand", label: "Brand", example: "JD Foods", schema: optionalText(80) },
+      { key: "category", label: "Category", example: "Premium Sauces", schema: optionalText(80) },
+      {
+        key: "item_type",
+        label: "Type",
+        aliases: ["item type"],
+        example: "finished_good",
+        schema: z.string().trim().optional().transform((v) => (v ? v.toLowerCase().replace(/\s+/g, "_") : undefined)).pipe(z.enum(["finished_good", "raw_material", "packaging", "merchandise", "service", "bundle"], { message: "Use finished good, merchandise, raw material, packaging, bundle or service." }).optional()),
+      },
+      { key: "base_unit", label: "Unit (pc, pack, bottle…)", aliases: ["unit", "uom"], example: "bottle", schema: z.string().trim().toLowerCase().optional().transform((v) => v || undefined).pipe(z.string().regex(/^[a-z]{1,12}$/, "Use a unit like pc, pack or bottle.").optional()) },
+      { key: "size", label: "Size", example: "1 liter", schema: optionalText(60) },
+      { key: "srp", label: "SRP", aliases: ["price", "retail price"], example: "256", schema: money },
+      { key: "cost", label: "Cost per unit", aliases: ["unit cost"], example: "120", schema: money },
+      { key: "shelf_life_days", label: "Shelf life (days)", aliases: ["shelf life"], example: "365", schema: z.string().trim().optional().transform((v, ctx) => { if (!v) return undefined; if (!/^\d{1,4}$/.test(v)) ctx.addIssue({ code: "custom", message: "Whole number of days." }); return v; }) },
+      { key: "pre_order", label: "Pre-order (Yes/No)", example: "No", schema: yesNo },
+      { key: "notes", label: "Notes", example: "", schema: optionalText(1000) },
+    ],
+  },
+  {
+    key: "opening_stock",
+    label: "Opening stock",
+    description: "Brings in the stock you have today, by product, location, bin and lot, with its cost. Posted as released stock. Run it once, after products are imported.",
+    rpc: "import_opening_stock",
+    perm: "inventory.receive",
+    fields: [
+      { key: "sku", label: "SKU", required: true, aliases: ["code"], example: "P1-1L", schema: z.string().trim().toUpperCase().regex(/^[A-Z0-9][A-Z0-9-]{0,39}$/, "Not a valid SKU.") },
+      { key: "location", label: "Location (code or name)", required: true, aliases: ["warehouse"], example: "PLR-FG", schema: text(120).min(2, "Required.") },
+      { key: "bin", label: "Bin", example: "DEFAULT", schema: optionalText(30) },
+      { key: "lot_no", label: "Lot no.", aliases: ["lot", "batch"], example: "L2026-05-01", schema: optionalText(60) },
+      { key: "mfg_date", label: "Manufactured", aliases: ["mfg date"], example: "2026-05-01", schema: optionalDate },
+      { key: "expiry_date", label: "Expiry", aliases: ["expiry", "exp date", "best before"], example: "2027-05-01", schema: optionalDate },
+      { key: "qty", label: "Quantity", required: true, aliases: ["quantity", "on hand"], example: "120", schema: positiveQty },
+      { key: "unit", label: "Unit (blank = base unit)", example: "", schema: z.string().trim().toLowerCase().optional().transform((v) => v || undefined) },
+      { key: "unit_cost", label: "Cost per unit", aliases: ["cost"], example: "120", schema: money },
+    ],
+  },
+);
+
 export function getTemplate(key: string) {
   return TEMPLATES.find((t) => t.key === key);
 }

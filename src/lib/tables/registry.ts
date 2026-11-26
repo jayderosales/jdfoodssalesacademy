@@ -76,11 +76,7 @@ export const employeesTable: TableDef<EmployeeRow> = {
   defaultSort: { column: "full_name", ascending: true },
 };
 
-/** Tables that can be exported to Excel, and the permission needed to try (RLS still filters the rows). */
-export const EXPORTABLE: Record<string, { def: TableDef<never>; perm?: Permission[] }> = {
-  petty_cash: { def: pettyCashTable as TableDef<never> },
-  employees: { def: employeesTable as TableDef<never>, perm: ["org.view", "readonly.all"] },
-};
+
 
 export function exportValue(kind: string | undefined, v: unknown): string | number {
   if (v == null) return "";
@@ -90,3 +86,121 @@ export function exportValue(kind: string | undefined, v: unknown): string | numb
 }
 
 export { formatMoney };
+
+// ---------------------------------------------------------------- inventory
+export interface ProductRow {
+  id: string;
+  sku: string;
+  name: string;
+  item_type: string;
+  base_unit: string;
+  size_label: string;
+  srp: string | null;
+  active: boolean;
+  pre_order: boolean;
+  brands: { name: string } | null;
+  product_categories: { name: string } | null;
+}
+
+export const ITEM_TYPE_LABEL: Record<string, string> = {
+  finished_good: "Finished good",
+  merchandise: "Merchandise",
+  raw_material: "Raw material",
+  packaging: "Packaging",
+  bundle: "Bundle",
+  service: "Service",
+};
+
+/** Built per request so brand/category filters list the current options. */
+export function productsTableDef(brands: { id: string; name: string }[], categories: { id: string; name: string }[]): TableDef<ProductRow> {
+  return {
+    key: "products",
+    title: "Products",
+    table: "products",
+    select: "id, sku, name, item_type, base_unit, size_label, srp, active, pre_order, brands(name), product_categories(name)",
+    columns: [
+      { key: "sku", label: "SKU", sortColumn: "sku", href: (r) => `/inventory/products/${r.id}` },
+      { key: "name", label: "Name", sortColumn: "name" },
+      { key: "brand", label: "Brand", value: (r) => r.brands?.name ?? "" },
+      { key: "category", label: "Category", value: (r) => r.product_categories?.name ?? "" },
+      { key: "item_type", label: "Type", optional: true, value: (r) => ITEM_TYPE_LABEL[r.item_type] ?? r.item_type },
+      { key: "size_label", label: "Size", optional: true },
+      { key: "base_unit", label: "Unit", optional: true },
+      { key: "srp", label: "SRP", kind: "money", sortColumn: "srp" },
+      { key: "active", label: "Status", kind: "status", value: (r) => (r.active ? "active" : "inactive") },
+    ],
+    search: ["sku", "name"],
+    filters: [
+      { key: "brand", label: "Brands", column: "brand_id", options: brands.map((b) => ({ value: b.id, label: b.name })) },
+      { key: "category", label: "Categories", column: "category_id", options: categories.map((c) => ({ value: c.id, label: c.name })) },
+      { key: "type", label: "Types", column: "item_type", options: Object.entries(ITEM_TYPE_LABEL).map(([value, label]) => ({ value, label })) },
+      { key: "active", label: "Statuses", column: "active", options: [{ value: "true", label: "Active" }, { value: "false", label: "Inactive" }] },
+    ],
+    defaultSort: { column: "sku", ascending: true },
+    pageSize: 50,
+  };
+}
+
+export interface StockRow {
+  id: string;
+  product_id: string;
+  sku: string;
+  product_name: string;
+  base_unit: string;
+  location_name: string;
+  bin_code: string;
+  lot_no: string;
+  expiry_date: string | null;
+  qa_status: string;
+  on_hand: string;
+  reserved: string;
+  avg_cost: string | null;
+  value: string | null;
+  days_to_expiry: number | null;
+}
+
+const QA_OPTIONS = [
+  { value: "released", label: "Released" },
+  { value: "quarantine", label: "Quarantine" },
+  { value: "on_hold", label: "On hold" },
+  { value: "rejected", label: "Rejected" },
+  { value: "expired", label: "Expired" },
+];
+
+export function stockTableDef(locations: { id: string; name: string }[], brands: { id: string; name: string }[]): TableDef<StockRow> {
+  return {
+    key: "stock",
+    title: "Stock on hand",
+    table: "stock_on_hand",
+    select: "id, product_id, sku, product_name, base_unit, location_name, bin_code, lot_no, expiry_date, qa_status, on_hand, reserved, avg_cost, value, days_to_expiry",
+    columns: [
+      { key: "sku", label: "SKU", sortColumn: "sku", href: (r) => `/inventory/products/${r.product_id}?tab=stock` },
+      { key: "product_name", label: "Product" },
+      { key: "location_name", label: "Location", sortColumn: "location_name" },
+      { key: "bin_code", label: "Bin", optional: true },
+      { key: "lot_no", label: "Lot", sortColumn: "lot_no" },
+      { key: "expiry_date", label: "Expiry", kind: "date", sortColumn: "expiry_date" },
+      { key: "qa_status", label: "QA", kind: "status", sortColumn: "qa_status" },
+      { key: "on_hand", label: "On hand", kind: "number", sortColumn: "on_hand", value: (r) => Number(r.on_hand) },
+      { key: "reserved", label: "Reserved", kind: "number", optional: true, value: (r) => Number(r.reserved) },
+      { key: "avg_cost", label: "Unit cost", kind: "money", optional: true },
+      { key: "value", label: "Value", kind: "money", sortColumn: "value" },
+    ],
+    search: ["sku", "product_name", "lot_no"],
+    filters: [
+      { key: "location", label: "Locations", column: "location_id", options: locations.map((l) => ({ value: l.id, label: l.name })) },
+      { key: "brand", label: "Brands", column: "brand_id", options: brands.map((b) => ({ value: b.id, label: b.name })) },
+      { key: "qa", label: "QA statuses", column: "qa_status", options: QA_OPTIONS },
+    ],
+    defaultSort: { column: "sku", ascending: true },
+    pageSize: 50,
+  };
+}
+
+/** Tables that can be exported to Excel, and the permission needed to try (RLS still filters the rows). */
+export const EXPORTABLE: Record<string, { def: TableDef<never>; perm?: Permission[] }> = {
+  petty_cash: { def: pettyCashTable as TableDef<never> },
+  employees: { def: employeesTable as TableDef<never>, perm: ["org.view", "readonly.all"] },
+  products: { def: productsTableDef([], []) as unknown as TableDef<never>, perm: ["inventory.view"] },
+  stock: { def: stockTableDef([], []) as unknown as TableDef<never>, perm: ["inventory.view"] },
+};

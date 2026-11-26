@@ -28,6 +28,16 @@ export const PERMISSIONS = {
   "admin.approvals.manage": { module: "admin", restricted: false },
   "petty_cash.request": { module: "finance", restricted: false },
   "petty_cash.view_all": { module: "finance", restricted: false },
+  "inventory.view": { module: "inventory", restricted: false },
+  "inventory.view_cost": { module: "inventory", restricted: true },
+  "inventory.products.manage": { module: "inventory", restricted: false },
+  "inventory.receive": { module: "inventory", restricted: false },
+  "inventory.transfer": { module: "inventory", restricted: false },
+  "inventory.adjust.request": { module: "inventory", restricted: false },
+  "inventory.count": { module: "inventory", restricted: false },
+  "inventory.qa.release": { module: "inventory", restricted: false },
+  "inventory.reorder.manage": { module: "inventory", restricted: false },
+  "inventory.cost.manage": { module: "inventory", restricted: true },
 } as const satisfies Record<string, { module: string; restricted: boolean }>;
 
 export type Permission = keyof typeof PERMISSIONS;
@@ -42,6 +52,7 @@ export const MODULE_LABELS: Record<string, string> = {
   portal: "Portals",
   approvals: "Approvals",
   finance: "Finance",
+  inventory: "Inventory & warehouse",
 };
 
 /** Built-in role codes (public.roles where is_system). */

@@ -36,7 +36,7 @@ export default async function ProductEditPage({ params }: { params: Promise<{ id
   const supabase = await createClient();
   let product: Product = { active: true, verified: false, sizes: [], faqs: [] };
   if (id !== "new") {
-    const { data } = await supabase.from("products").select("*").eq("id", id).maybeSingle();
+    const { data } = await supabase.from("academy_products").select("*").eq("id", id).maybeSingle();
     if (!data) notFound();
     product = data as Product;
   }

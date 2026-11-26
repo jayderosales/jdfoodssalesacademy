@@ -3,7 +3,8 @@ import type { UserRole } from "@/lib/types";
 
 export type IconName =
   | "home" | "book" | "quiz" | "chat" | "user" | "users" | "team" | "review"
-  | "content" | "chart" | "settings" | "audit" | "org" | "key" | "link" | "soon" | "approve" | "wallet" | "bell" | "import";
+  | "content" | "chart" | "settings" | "audit" | "org" | "key" | "link" | "soon" | "approve" | "wallet" | "bell" | "import"
+  | "box" | "tag" | "layers" | "truck" | "inbox" | "sliders" | "clipboard" | "scan" | "gauge";
 
 export interface NavItem {
   href: string;
@@ -46,20 +47,31 @@ export const MODULES: ModuleEntry[] = [
   { section: "Training", href: "/signup-links", label: "Sign-up links", icon: "link", perm: ["academy.team.manage", "academy.admin"] },
   { section: "Training", href: "/admin/content", label: "Training content", icon: "content", perm: ["academy.admin"] },
 
+  { section: "Inventory", href: "/inventory", label: "Overview", icon: "gauge", perm: ["inventory.view"], mobile: 2 },
+  { section: "Inventory", href: "/inventory/products", label: "Products", icon: "box", perm: ["inventory.view"] },
+  { section: "Inventory", href: "/inventory/prices", label: "Costs & prices", icon: "tag", perm: ["inventory.cost.manage", "inventory.products.manage"] },
+  { section: "Inventory", href: "/inventory/stock", label: "Stock on hand", icon: "layers", perm: ["inventory.view"] },
+  { section: "Inventory", href: "/inventory/batches", label: "Batches", icon: "layers", perm: ["inventory.view"] },
+  { section: "Inventory", href: "/inventory/receipts", label: "Receipts", icon: "inbox", perm: ["inventory.receive"] },
+  { section: "Inventory", href: "/inventory/transfers", label: "Transfers", icon: "truck", perm: ["inventory.transfer"] },
+  { section: "Inventory", href: "/inventory/adjustments", label: "Adjustments", icon: "sliders", perm: ["inventory.adjust.request", "inventory.view_cost"] },
+  { section: "Inventory", href: "/inventory/counts", label: "Counts", icon: "clipboard", perm: ["inventory.count"] },
+  { section: "Inventory", href: "/inventory/reorder", label: "Reorder", icon: "chart", perm: ["inventory.reorder.manage", "inventory.view_cost"] },
+  { section: "Inventory", href: "/inventory/scan", label: "Scan", icon: "scan", perm: ["inventory.view"] },
+
   { section: "Administration", href: "/admin/users", label: "Users", icon: "users", perm: ["admin.users.view"], mobile: 7 },
   { section: "Administration", href: "/admin/roles", label: "Roles & permissions", icon: "key", perm: ["admin.roles.manage", "admin.users.view"] },
   // Everyone internal can READ the directory (org.view), but only people who look after it get the menu item.
   { section: "Administration", href: "/admin/org", label: "Organization", icon: "org", perm: ["admin.org.manage", "employees.manage", "admin.users.view", "readonly.all"] },
   { section: "Administration", href: "/admin/settings", label: "Settings", icon: "settings", perm: ["admin.settings.manage", "admin.security.manage", "academy.admin"], mobile: 8 },
   { section: "Administration", href: "/admin/audit", label: "Audit log", icon: "audit", perm: ["audit.view"] },
-  { section: "Administration", href: "/admin/import", label: "Import data", icon: "import", perm: ["employees.manage", "admin.org.manage"] },
+  { section: "Administration", href: "/admin/import", label: "Import data", icon: "import", perm: ["employees.manage", "admin.org.manage", "inventory.products.manage", "inventory.receive"] },
 
   { section: "", href: "/account", label: "My account", icon: "user", mobile: 5 },
 ];
 
 /** Modules planned in docs/MODULES.md, shown as "coming soon" to administrators only. */
 export const UPCOMING_MODULES = [
-  { slug: "inventory", label: "Inventory & warehouse", phase: "2" },
   { slug: "sales", label: "Sales & CRM", phase: "3" },
   { slug: "orders", label: "Orders & e-commerce", phase: "3" },
   { slug: "procurement", label: "Procurement", phase: "4" },
@@ -74,15 +86,19 @@ function visibleModules(perms: ReadonlySet<string>, academyRole: UserRole | null
   }));
 }
 
-/** The Training pages this person can open, shown as tabs on every Training page. */
-export function trainingTabs(perms: ReadonlySet<string>, academyRole: UserRole | null): NavItem[] {
+/** The pages of a grouped module this person can open, shown as tabs on every page of that module. */
+export function sectionTabs(section: string, perms: ReadonlySet<string>, academyRole: UserRole | null): NavItem[] {
   return visibleModules(perms, academyRole)
-    .filter((m) => m.section === "Training")
+    .filter((m) => m.section === section)
     .map(({ href, label, icon }) => ({ href, label, icon }));
 }
+export const trainingTabs = (perms: ReadonlySet<string>, academyRole: UserRole | null) => sectionTabs("Training", perms, academyRole);
 
 /** Modules with sub-pages appear as ONE sidebar item; their pages are reached through tabs. */
-const GROUPED: Record<string, { label: string; icon: IconName }> = { Training: { label: "Training", icon: "book" } };
+export const GROUPED: Record<string, { label: string; icon: IconName }> = {
+  Training: { label: "Training", icon: "book" },
+  Inventory: { label: "Inventory", icon: "box" },
+};
 
 export function buildNav(perms: ReadonlySet<string>, academyRole: UserRole | null): { sections: NavSection[]; mobile: NavItem[] } {
   const visible = visibleModules(perms, academyRole);

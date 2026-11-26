@@ -1,5 +1,15 @@
 # Changelog
 
+## 2026-11-26 — Phase 2: products, inventory & warehouse
+- **Product master**: 393 SKUs loaded from the May 2026 SRP list (5 brands, 34 categories, 18 pre-order). Units and conversions, barcodes, bundles, shelf life, FDA CPR fields. The Academy's training "products" table is now `academy_products`.
+- **Product cost and price editing**: cost card on each product page and a bulk **Costs & prices** sheet (SRP + cost, margin, changed cells highlighted). Changing cost while stock is on hand is a revaluation: reason required, logged with the value difference.
+- **Stock ledger**: append-only movements, balances by location/bin/batch, moving weighted-average cost, no negative stock, QA gate (only released batches can leave), FEFO reservations.
+- **Documents**: receipts, two-step transfers (in transit, short receipts alert the ops manager), adjustments and cycle counts through approvals (≤ ₱5,000 operations manager, above CEO), blind counts with offline save on the phone.
+- **Batches & expiry**: QA release/hold/reject, near-expiry alerts and automatic expiry each night (pg_cron), heat-map.
+- **Reorder** levels and suggestions, **Scan** page (camera or SKU), inventory health overview (value, near-expiry, slow-moving, quarantine).
+- Import templates for products and opening stock.
+- 239 unit/DB tests. Migrations 20261203000001…06 applied to Supabase (06 tightens function grants flagged by the security advisor).
+
 ## 2026-11-26 — Phase 1b: shared engines
 - **Document numbering** (gapless, per year), **attachments** on any record (private, 5-minute links, phone camera), **event outbox** with automatic retry and a Background jobs screen.
 - **Notifications**: rules + personal preferences, live bell (Realtime), Notifications page, mark read. Email built but switched off until Resend is set up.

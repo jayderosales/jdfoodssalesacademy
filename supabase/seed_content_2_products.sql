@@ -1,7 +1,7 @@
 -- Product seed: PLACEHOLDER data taken from jdfoods.ph listings. verified = false on every row.
 -- Prices marked "~" on the website are approximate. Unknown fields stay 'TODO'. An admin must verify each product.
 
-insert into public.products (id, brand, line, name, category, sizes, price_php, use_cases, target_customers, selling_points, lesson_id, verified) values
+insert into public.academy_products (id, brand, line, name, category, sizes, price_php, use_cases, target_customers, selling_points, lesson_id, verified) values
 ('14000000-0000-4000-8000-000000000001', 'ThyChef', 'Flavored Powders', 'ThyChef Cheese Flavored Powder', 'Powder', '["1 kg"]', null,
   'Toss on fries, chicken, popcorn and chips.', 'Fries and chicken carts, snack kiosks, popcorn resellers.', 'Lets stalls add a flavor option from one base product; consistent taste. TODO: verify.',
   '13000000-0000-4000-8000-000000000202', false),

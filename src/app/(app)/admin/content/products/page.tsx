@@ -9,7 +9,7 @@ export const metadata = { title: "Products" };
 export default async function ProductsPage() {
   await requireOwner();
   const supabase = await createClient();
-  const { data } = await supabase.from("products").select("id, brand, line, name, category, price_php, verified, active").order("brand").order("line").order("name");
+  const { data } = await supabase.from("academy_products").select("id, brand, line, name, category, price_php, verified, active").order("brand").order("line").order("name");
   const products = (data ?? []) as { id: string; brand: string; line: string; name: string; category: string; price_php: number | null; verified: boolean; active: boolean }[];
   const unverified = products.filter((p) => !p.verified).length;
 

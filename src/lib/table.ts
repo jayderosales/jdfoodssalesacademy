@@ -59,7 +59,8 @@ export function parseTableParams(def: TableDef<never>, sp: Record<string, string
   const filters: Record<string, string> = {};
   for (const f of def.filters ?? []) {
     const v = get(f.key);
-    if (v && f.options.some((o) => o.value === v)) filters[f.key] = v;
+    // filters whose options are loaded at request time (e.g. brands) accept any safe id-like value
+    if (v && (f.options.length ? f.options.some((o) => o.value === v) : /^[\w-]{1,60}$/.test(v))) filters[f.key] = v;
   }
   const sortable = new Set(def.columns.map((c) => c.sortColumn).filter(Boolean));
   const sort = get("sort");

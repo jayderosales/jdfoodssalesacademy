@@ -13,8 +13,8 @@ export default async function ContentPage() {
   const supabase = await createClient();
   const [{ data: paths }, { count: products }, { count: unverified }, { count: quizzes }, { count: drafts }, { count: scenarios }] = await Promise.all([
     supabase.from("learning_paths").select("id, title, description, published, is_default, modules(id, lessons(id))").order("created_at"),
-    supabase.from("products").select("id", { count: "exact", head: true }),
-    supabase.from("products").select("id", { count: "exact", head: true }).eq("verified", false),
+    supabase.from("academy_products").select("id", { count: "exact", head: true }),
+    supabase.from("academy_products").select("id", { count: "exact", head: true }).eq("verified", false),
     supabase.from("quizzes").select("id", { count: "exact", head: true }),
     supabase.from("questions").select("id", { count: "exact", head: true }).eq("status", "draft"),
     supabase.from("scenarios").select("id", { count: "exact", head: true }),

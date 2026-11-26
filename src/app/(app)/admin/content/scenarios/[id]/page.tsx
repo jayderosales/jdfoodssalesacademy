@@ -40,7 +40,7 @@ export default async function ScenarioEditPage({ params }: { params: Promise<{ i
     s = data as ScenarioRow;
   }
   const [{ data: products }, { data: rubrics }] = await Promise.all([
-    supabase.from("products").select("id, name, brand, verified").eq("active", true).order("brand").order("name"),
+    supabase.from("academy_products").select("id, name, brand, verified").eq("active", true).order("brand").order("name"),
     supabase.from("rubrics").select("id, name, version").order("created_at"),
   ]);
   const p = s.persona;
