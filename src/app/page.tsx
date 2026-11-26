@@ -5,7 +5,8 @@ import { getAuthState } from "@/lib/auth";
 import { BRAND_BLURBS, getCatalog, slugify } from "@/lib/sales/shop";
 import { CartLink } from "./shop/cart";
 import { ShopFooter } from "./shop/footer";
-import { ProductCard } from "./shop/product-card";
+import { familyRank, groupFamilies } from "@/lib/sales/families";
+import { FamilyCard } from "./shop/product-card";
 
 export const metadata = {
   title: "JD Foods: sauces, powders and café supplies",
@@ -18,8 +19,10 @@ export default async function Home() {
   if (signedIn) redirect("/dashboard");
 
   const all = await getCatalog();
-  const featured = all.filter((p) => p.in_stock && !p.pre_order).slice(0, 8);
-  const fallback = featured.length ? featured : all.slice(0, 8);
+  // popular picks: flavours with stock on the shelf, photo first
+  const fallback = groupFamilies(all)
+    .sort((a, b) => familyRank(a) - familyRank(b) || Number(!a.image) - Number(!b.image) || a.name.localeCompare(b.name))
+    .slice(0, 8);
   const brands = Object.keys(BRAND_BLURBS).filter((b) => all.some((p) => p.brand === b));
   const count = all.length;
 
@@ -81,7 +84,7 @@ export default async function Home() {
               <Link href="/shop" className="text-sm font-semibold text-brand underline">See all products</Link>
             </div>
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-              {fallback.map((p) => <ProductCard key={p.id} p={p} />)}
+              {fallback.map((f) => <FamilyCard key={f.key} f={f} />)}
             </div>
           </section>
         )}

@@ -1,12 +1,16 @@
 import Link from "next/link";
+import { familyRank, groupFamilies } from "@/lib/sales/families";
 import { getCatalog, getShopPrices, slugify } from "@/lib/sales/shop";
-import { ProductCard } from "./product-card";
+import { FamilyCard } from "./product-card";
 
 export const metadata = { title: "Products" };
 
 const PAGE = 48;
 
-/** Public catalog: search, filter by brand and category. Guests see SRP; signed-in customers see their prices. */
+/**
+ * Public catalog: one card per flavour (all its sizes together), search, filter by brand and category.
+ * Guests see SRP; signed-in customers see their prices.
+ */
 export default async function ShopPage({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
   const sp = await searchParams;
   const q = (sp.q ?? "").trim().toLowerCase().slice(0, 60);
@@ -19,13 +23,12 @@ export default async function ShopPage({ searchParams }: { searchParams: Promise
   const brands = [...new Set(all.map((p) => p.brand).filter(Boolean))] as string[];
   const inBrand = brand ? all.filter((p) => p.brand && slugify(p.brand) === brand) : all;
   const cats = [...new Set(inBrand.map((p) => p.category).filter(Boolean))] as string[];
-  const list = inBrand
-    .filter((p) => !cat || (p.category && slugify(p.category) === cat))
-    .filter((p) => !stockOnly || p.in_stock)
-    .filter((p) => !q || `${p.name} ${p.sku} ${p.category ?? ""} ${p.brand ?? ""}`.toLowerCase().includes(q))
-    .sort((a, b) => Number(b.in_stock) - Number(a.in_stock) || a.name.localeCompare(b.name));
-  const shown = list.slice((page - 1) * PAGE, page * PAGE);
-  const prices = await getShopPrices(shown.map((p) => p.id));
+  const families = groupFamilies(inBrand.filter((p) => !cat || (p.category && slugify(p.category) === cat)))
+    .filter((f) => !stockOnly || f.inStock)
+    .filter((f) => !q || `${f.name} ${f.category ?? ""} ${f.brand ?? ""} ${f.variants.map((v) => v.sku).join(" ")}`.toLowerCase().includes(q))
+    .sort((a, b) => familyRank(a) - familyRank(b) || a.name.localeCompare(b.name));
+  const shown = families.slice((page - 1) * PAGE, page * PAGE);
+  const prices = await getShopPrices(shown.flatMap((f) => f.variants.map((v) => v.id)));
 
   const href = (patch: Record<string, string>) => {
     const p = new URLSearchParams({ ...(q && { q }), ...(brand && { brand }), ...(cat && { cat }), ...(stockOnly && { stock: "1" }), ...patch });
@@ -39,7 +42,7 @@ export default async function ShopPage({ searchParams }: { searchParams: Promise
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <h1 className="text-2xl font-bold">Products</h1>
-          <p className="text-sm text-muted-foreground">{list.length} items · order by the piece, no minimum</p>
+          <p className="text-sm text-muted-foreground">{families.length} products · choose the size on each product · no minimum order</p>
         </div>
         <form action="/shop" className="flex w-full gap-2 sm:w-auto">
           {brand && <input type="hidden" name="brand" value={brand} />}
@@ -68,15 +71,15 @@ export default async function ShopPage({ searchParams }: { searchParams: Promise
         <p className="py-16 text-center text-muted-foreground">No products match. Try another search.</p>
       ) : (
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
-          {shown.map((p) => <ProductCard key={p.id} p={p} price={prices.get(p.id)} />)}
+          {shown.map((f) => <FamilyCard key={f.key} f={f} prices={prices} />)}
         </div>
       )}
 
-      {list.length > PAGE && (
+      {families.length > PAGE && (
         <div className="flex justify-center gap-2 text-sm">
           {page > 1 && <Link href={href({ page: String(page - 1) })} className="rounded-lg border px-3 py-2">← Previous</Link>}
-          <span className="px-3 py-2 text-muted-foreground">Page {page} of {Math.ceil(list.length / PAGE)}</span>
-          {page * PAGE < list.length && <Link href={href({ page: String(page + 1) })} className="rounded-lg border px-3 py-2">Next →</Link>}
+          <span className="px-3 py-2 text-muted-foreground">Page {page} of {Math.ceil(families.length / PAGE)}</span>
+          {page * PAGE < families.length && <Link href={href({ page: String(page + 1) })} className="rounded-lg border px-3 py-2">Next →</Link>}
         </div>
       )}
     </div>
