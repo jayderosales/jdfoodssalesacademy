@@ -21,7 +21,18 @@ const EVENT = "jdos:cart-changed";
 function read(): CartItem[] {
   try {
     const v = JSON.parse(localStorage.getItem(KEY) || "[]");
-    return Array.isArray(v) ? v.filter((x) => x && typeof x.sku === "string" && Number.isFinite(x.qty)) : [];
+    // tolerate old or damaged saved carts: keep the SKU and quantity, fill the display fields (prices are re-checked anyway)
+    return Array.isArray(v)
+      ? v
+          .filter((x) => x && typeof x.sku === "string" && Number.isFinite(x.qty))
+          .map((x) => ({
+            sku: x.sku,
+            qty: x.qty,
+            name: typeof x.name === "string" ? x.name : x.sku,
+            price: typeof x.price === "string" && /^\d+(\.\d{1,2})?$/.test(x.price) ? x.price : "0",
+            size: typeof x.size === "string" ? x.size : "",
+          }))
+      : [];
   } catch {
     return [];
   }
