@@ -80,6 +80,8 @@ describe("A. one business day through every module", () => {
     await t.as(wh, `select public.dispatch_order($1, 'J&T Express', 'JT-SIM', 120, null)`, [o]);
     await t.as(wh, `select public.mark_delivered($1, 'ok')`, [o]);
     expect(await onHand(sauce)).toBe(90);
+    // Products list "Available" column (computed): sellable stock after the sale
+    expect(num((await t.as<{ q: string }>(ops, `select public.stock_available_qty(p) q from public.products p where p.id = $1`, [sauce]))[0].q)).toBe(90);
 
     // ---- pay the supplier (CEO approval) with withholding tax
     const bank = (await one<{ id: string }>(`select id from public.accounts where system_key = 'bank_main'`)).id;

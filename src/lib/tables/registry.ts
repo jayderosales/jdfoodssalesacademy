@@ -98,6 +98,7 @@ export interface ProductRow {
   srp: string | null;
   active: boolean;
   pre_order: boolean;
+  stock_available_qty: string | number | null; // computed column (migration 20261210000002)
   brands: { name: string } | null;
   product_categories: { name: string } | null;
 }
@@ -117,7 +118,7 @@ export function productsTableDef(brands: { id: string; name: string }[], categor
     key: "products",
     title: "Products",
     table: "products",
-    select: "id, sku, name, item_type, base_unit, size_label, srp, active, pre_order, brands(name), product_categories(name)",
+    select: "id, sku, name, item_type, base_unit, size_label, srp, active, pre_order, stock_available_qty, brands(name), product_categories(name)",
     columns: [
       { key: "sku", label: "SKU", sortColumn: "sku", href: (r) => `/inventory/products/${r.id}` },
       { key: "name", label: "Name", sortColumn: "name" },
@@ -127,6 +128,13 @@ export function productsTableDef(brands: { id: string; name: string }[], categor
       { key: "size_label", label: "Size", optional: true },
       { key: "base_unit", label: "Unit", optional: true },
       { key: "srp", label: "SRP", kind: "money", sortColumn: "srp" },
+      {
+        key: "available",
+        label: "Available",
+        kind: "number",
+        sortColumn: "stock_available_qty",
+        value: (r) => (r.item_type === "service" ? "" : `${Number(r.stock_available_qty ?? 0).toLocaleString("en-PH", { maximumFractionDigits: 2 })} ${r.base_unit}`),
+      },
       { key: "active", label: "Status", kind: "status", value: (r) => (r.active ? "active" : "inactive") },
     ],
     search: ["sku", "name"],
