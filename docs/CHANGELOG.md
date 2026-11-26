@@ -1,5 +1,15 @@
 # Changelog
 
+## 2026-11-26 — Phase 4: procurement
+- **Suppliers**: accreditation (pending → approved → blocked with a reason), contacts, documents (BIR 2303, FDA LTO, quotes), payment terms, VAT status, and **bank details visible to finance only** (every view logged). Supplier price list per item and unit, with MOQ, lead time and last price paid.
+- **Purchase requests**: any staff member asks for items; the buyer orders them or declines with a reason. Inventory → Reorder has a "Create purchase request" button for everything below its minimum.
+- **Purchase orders**: from requests or from scratch, VAT-inclusive or exclusive pricing, discounts, totals split into net and VAT. **Every PO goes to the CEO.** Approved POs are locked (Revise = back to draft and a new approval). Print / Save as PDF for the supplier, then mark it sent. Cancel or close with a reason.
+- **Receiving against a PO**: the PO page has a Receive section (qty, lot, expiry). Lots go to QA quarantine as before, cost is the PO price without VAT, over-receipt beyond 5% is blocked (setting), and the PO moves to partly received or received.
+- **Supplier invoices with 3-way match**: prefilled with what was received and not yet billed. Matching checks price (1% tolerance, setting) and quantity received; duplicate supplier invoice numbers are blocked. A match means "ready to pay"; variances (including charges not on the PO) go to the CEO.
+- **Procurement overview**: requests to order, POs waiting for the CEO, late deliveries, variances, spend this month by supplier, and supplier performance (on time, fill rate, QA rejects).
+- VAT rate (12%) is a setting marked "needs verification" until the accountant confirms it.
+- 285 unit/DB tests (9 new procurement DB tests). Migration 20261205000001 applied to Supabase.
+
 ## 2026-11-26 — Phase 3: sales, CRM and online shop
 - **Public landing page** at `/` and **online shop** at `/shop`: catalog by brand and category with search, product pages, cart, one-page checkout with no account needed, order page with payment instructions and reference entry, and order tracking by order number + mobile. Guests pay SRP; signed-in customers see their price list.
 - **Customers** with price lists (Retail = SRP, Regular, Corporate, Distributor, Reseller), customer-specific prices, contacts, addresses, credit terms and limit, on-hold flag, opening balance, and a 360 page (owes, overdue, orders, payments, activity).

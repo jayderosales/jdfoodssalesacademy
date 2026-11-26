@@ -22,6 +22,12 @@ Answer inline under each question (or in chat). Answered questions move to the b
 - **Customer logins in the shop.** A business customer who registers sees their prices only after an admin links their login to their customer record. The screen for that comes with the portal phase.
 - **Local development.** This PC's network intercepts HTTPS, so the local dev server can't reach Supabase ("unable to verify the first certificate"). Test on the Vercel site, or run Node with --use-system-ca.
 
+## Phase 4 (procurement)
+
+- **VAT rate and treatment.** Purchase orders use 12% VAT for VAT-registered suppliers (setting app_settings.vat_rate, marked needs verification). The accountant should confirm the rate and that input VAT is excluded from stock cost.
+- **Supplier list.** Send the current supplier list (name, TIN, VAT status, terms, items they supply, prices) and I'll prepare an import.
+- **Who is the buyer?** The operations manager and COO can create POs. Tell me if someone else (e.g. a purchasing officer) should.
+
 ## Other open items (not blocking Phase 1)
 
 - **Supabase Auth settings to turn on** (dashboard → Authentication): leaked-password protection (advisor warning); session inactivity timeout / time-box (Pro plan). TOTP MFA is on by default.
@@ -34,6 +40,13 @@ Answer inline under each question (or in chat). Answered questions move to the b
 - Privacy notice text (Data Privacy Act) and DPO contact — still a placeholder from the Academy.
 
 ## Answered
+
+**2026-11-26 — Phase 4 (procurement) questions**
+
+1. Build procurement inside JD Foods OS (no Odoo/ERPNext).
+2. The CEO approves all purchase orders.
+3. Local suppliers only (no imports, no landed cost for now).
+4. Purchase requests first, then POs by the buyer.
 
 **2026-11-26 — Phase 3 (sales and shop) questions**
 

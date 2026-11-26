@@ -49,6 +49,12 @@ export const PERMISSIONS = {
   "sales.payments.confirm": { module: "sales", restricted: false },
   "sales.fulfil": { module: "sales", restricted: false },
   "sales.invoices.manage": { module: "sales", restricted: false },
+  "procurement.view": { module: "procurement", restricted: false },
+  "procurement.request": { module: "procurement", restricted: false },
+  "procurement.suppliers.manage": { module: "procurement", restricted: false },
+  "procurement.po.create": { module: "procurement", restricted: false },
+  "procurement.invoices.manage": { module: "procurement", restricted: false },
+  "procurement.view_bank": { module: "procurement", restricted: true },
 } as const satisfies Record<string, { module: string; restricted: boolean }>;
 
 export type Permission = keyof typeof PERMISSIONS;
@@ -65,6 +71,7 @@ export const MODULE_LABELS: Record<string, string> = {
   finance: "Finance",
   inventory: "Inventory & warehouse",
   sales: "Sales, CRM & shop",
+  procurement: "Procurement",
 };
 
 /** Built-in role codes (public.roles where is_system). */

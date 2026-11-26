@@ -15,22 +15,22 @@ const IV = "inventory.view";
 const EXPECTED: Record<SystemRole, string[] | "all"> = {
   super_admin: "all",
   ceo: "all",
-  cfo: ["org.view", PC, "petty_cash.view_all", "approvals.view_all", IV, "inventory.view_cost", "inventory.cost.manage", "sales.view", "sales.view_all", "sales.payments.confirm", "sales.invoices.manage", "sales.pricing.manage"],
-  coo: ["org.view", PC, IV, "inventory.view_cost", "inventory.products.manage", "inventory.reorder.manage", "inventory.cost.manage", "sales.view", "sales.view_all", "sales.fulfil"],
-  cmo: ["org.view", PC, IV, "sales.view", "sales.view_all"],
-  operations_manager: ["org.view", PC, "petty_cash.view_all", IV, "inventory.view_cost", "inventory.products.manage", "inventory.receive", "inventory.transfer", "inventory.adjust.request", "inventory.count", "inventory.reorder.manage", "inventory.cost.manage", "sales.view", "sales.view_all", "sales.orders.create", "sales.fulfil"],
-  sales_head: ["org.view", "academy.team.manage", "academy.reports.view", "academy.learn", PC, IV, "sales.view", "sales.view_all", "sales.customers.manage", "sales.crm", "sales.orders.create", "sales.orders.discount", "sales.pricing.manage", "sales.payments.record"],
-  hr_head: ["org.view", "employees.manage", "admin.users.view", "academy.reports.view", PC],
-  accounting_officer: ["org.view", PC, "petty_cash.view_all", IV, "inventory.view_cost", "sales.view", "sales.view_all", "sales.payments.record", "sales.payments.confirm", "sales.invoices.manage"],
-  sales_rep: ["org.view", "academy.learn", PC, IV, "sales.view", "sales.customers.manage", "sales.crm", "sales.orders.create", "sales.payments.record"],
-  warehouse: ["org.view", PC, IV, "inventory.receive", "inventory.transfer", "inventory.adjust.request", "inventory.count", "sales.fulfil"],
-  manufacturing: ["org.view", PC, IV, "inventory.transfer"],
-  qa: ["org.view", PC, IV, "inventory.qa.release"],
-  creative: ["org.view", PC],
-  trainer: ["org.view", "academy.team.manage", "academy.reports.view", PC],
-  employee: ["org.view", PC],
+  cfo: ["org.view", PC, "petty_cash.view_all", "approvals.view_all", IV, "inventory.view_cost", "inventory.cost.manage", "sales.view", "sales.view_all", "sales.payments.confirm", "sales.invoices.manage", "sales.pricing.manage", "procurement.view", "procurement.invoices.manage", "procurement.view_bank", "procurement.request"],
+  coo: ["org.view", PC, IV, "inventory.view_cost", "inventory.products.manage", "inventory.reorder.manage", "inventory.cost.manage", "sales.view", "sales.view_all", "sales.fulfil", "procurement.view", "procurement.suppliers.manage", "procurement.po.create", "procurement.request"],
+  cmo: ["org.view", PC, IV, "sales.view", "sales.view_all", "procurement.request"],
+  operations_manager: ["org.view", PC, "petty_cash.view_all", IV, "inventory.view_cost", "inventory.products.manage", "inventory.receive", "inventory.transfer", "inventory.adjust.request", "inventory.count", "inventory.reorder.manage", "inventory.cost.manage", "sales.view", "sales.view_all", "sales.orders.create", "sales.fulfil", "procurement.view", "procurement.suppliers.manage", "procurement.po.create", "procurement.request"],
+  sales_head: ["org.view", "academy.team.manage", "academy.reports.view", "academy.learn", PC, IV, "sales.view", "sales.view_all", "sales.customers.manage", "sales.crm", "sales.orders.create", "sales.orders.discount", "sales.pricing.manage", "sales.payments.record", "procurement.request"],
+  hr_head: ["org.view", "employees.manage", "admin.users.view", "academy.reports.view", PC, "procurement.request"],
+  accounting_officer: ["org.view", PC, "petty_cash.view_all", IV, "inventory.view_cost", "sales.view", "sales.view_all", "sales.payments.record", "sales.payments.confirm", "sales.invoices.manage", "procurement.view", "procurement.invoices.manage", "procurement.view_bank", "procurement.request"],
+  sales_rep: ["org.view", "academy.learn", PC, IV, "sales.view", "sales.customers.manage", "sales.crm", "sales.orders.create", "sales.payments.record", "procurement.request"],
+  warehouse: ["org.view", PC, IV, "inventory.receive", "inventory.transfer", "inventory.adjust.request", "inventory.count", "sales.fulfil", "procurement.view", "procurement.request"],
+  manufacturing: ["org.view", PC, IV, "inventory.transfer", "procurement.view", "procurement.request"],
+  qa: ["org.view", PC, IV, "inventory.qa.release", "procurement.view", "procurement.request"],
+  creative: ["org.view", PC, "procurement.request"],
+  trainer: ["org.view", "academy.team.manage", "academy.reports.view", PC, "procurement.request"],
+  employee: ["org.view", PC, "procurement.request"],
   driver: ["org.view", PC],
-  auditor: ["readonly.all", "audit.view", "org.view", "admin.users.view", "academy.reports.view", PC, "approvals.view_all", IV],
+  auditor: ["readonly.all", "audit.view", "org.view", "admin.users.view", "academy.reports.view", PC, "approvals.view_all", IV, "procurement.view"],
   customer: ["portal.customer"],
   distributor: ["portal.distributor"],
   supplier: ["portal.supplier"],
@@ -183,7 +183,7 @@ describe("granting roles", () => {
     await t.createUser(mgr, "usermgr@x.ph", []);
     await t.createUser(target, "target2@x.ph", []);
     const roleId = (await t.as<{ id: string }>(userOf.super_admin, `insert into public.roles (code, name) values ('user_manager', 'User manager') returning id`))[0].id;
-    await t.as(userOf.super_admin, `insert into public.role_permissions (role_id, permission_code) values ($1, 'admin.users.manage'), ($1, 'org.view'), ($1, 'petty_cash.request')`, [roleId]);
+    await t.as(userOf.super_admin, `insert into public.role_permissions (role_id, permission_code) values ($1, 'admin.users.manage'), ($1, 'org.view'), ($1, 'petty_cash.request'), ($1, 'procurement.request')`, [roleId]);
     await t.as(userOf.super_admin, `insert into public.user_roles (user_id, role_id, granted_by) values ($1, $2, $3)`, [mgr, roleId, userOf.super_admin]);
 
     await t.as(mgr, `insert into public.user_roles (user_id, role_id, granted_by) select $1, id, $2 from public.roles where code = 'employee'`, [target, mgr]);

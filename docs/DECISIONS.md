@@ -77,3 +77,8 @@ Format: date — decision — why — alternatives considered.
 - **Why:** The owner asked that sales hit inventory once payment is confirmed and the goods are prepared. Reserving at placement stops the shop from selling stock already promised.
 - **Also:** Customers pay the courier directly (no shipping line on orders). Guest checkout is allowed. Manual payment confirmation now, PayMongo behind a switch. The new shop runs alongside Shopify until Phase 3c sync.
 - **Alternatives:** Deduct at payment (stock leaves the books before it's packed); deduct at delivery (stock looks available while it sits at the pickup point).
+
+## 2026-11-26 — Phase 4: procurement built in-house, CEO approves POs
+- **Decision:** Procurement is built inside JD Foods OS. Every PO needs CEO approval. Purchase requests (no approval) → PO (approval) → receipt against the PO through the stock ledger → supplier invoice with 3-way match. Pesos only; no landed cost yet.
+- **Why:** Reuses the stock ledger, QA gate, costing and approval engine; avoids syncing products and stock with a second system. The owner confirmed CEO approval and local-only suppliers.
+- **Alternatives:** Odoo/ERPNext (duplicate master data and stock); tiered PO limits (kept as an inactive template).

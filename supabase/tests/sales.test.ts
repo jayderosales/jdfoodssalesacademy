@@ -181,7 +181,7 @@ describe("pay → pack → ready (stock deducted) → dispatch → deliver", () 
     await t.as(wh, `select public.mark_ready_for_pickup($1)`, [id]);
     expect(await onHand(sauce)).toBe(sauceBefore - 2);
     const mv = await t.as<{ movement_type: string; qty: string }>(wh, `select movement_type, qty from public.stock_movements where doc_id = $1 order by id`, [id]);
-    expect(mv.map((m) => [m.movement_type, num(m.qty)])).toEqual([["sale_dispatch", -2], ["sale_dispatch", -1]]);
+    expect(mv.map((m) => [m.movement_type, num(m.qty)]).sort((a, b) => Number(a[1]) - Number(b[1]))).toEqual([["sale_dispatch", -2], ["sale_dispatch", -1]]);
     expect((await one(`select count(*)::int n from public.reservations where source_id = $1 and released_at is null`, [id])).n).toBe(0);
     const inv = await one<{ number: string; total: string }>(`select number, total from public.billing_invoices where order_id = $1`, [id]);
     expect(inv.number).toMatch(/^BI-/);

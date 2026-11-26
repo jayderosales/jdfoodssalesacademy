@@ -70,6 +70,12 @@ export const MODULES: ModuleEntry[] = [
   { section: "Sales", href: "/sales/prices", label: "Price lists", icon: "tag", perm: ["sales.pricing.manage"] },
   { section: "Sales", href: "/sales/invoices", label: "Invoices & SI", icon: "receipt", perm: ["sales.invoices.manage"] },
 
+  { section: "Procurement", href: "/procurement", label: "Overview", icon: "gauge", perm: ["procurement.view", "procurement.po.create"] },
+  { section: "Procurement", href: "/procurement/requests", label: "Requests", icon: "clipboard", perm: ["procurement.request", "procurement.po.create"] },
+  { section: "Procurement", href: "/procurement/orders", label: "Purchase orders", icon: "cart", perm: ["procurement.view", "procurement.po.create"] },
+  { section: "Procurement", href: "/procurement/suppliers", label: "Suppliers", icon: "org", perm: ["procurement.view", "procurement.suppliers.manage"] },
+  { section: "Procurement", href: "/procurement/invoices", label: "Supplier invoices", icon: "receipt", perm: ["procurement.invoices.manage", "procurement.view"] },
+
   { section: "Administration", href: "/admin/users", label: "Users", icon: "users", perm: ["admin.users.view"], mobile: 7 },
   { section: "Administration", href: "/admin/roles", label: "Roles & permissions", icon: "key", perm: ["admin.roles.manage", "admin.users.view"] },
   // Everyone internal can READ the directory (org.view), but only people who look after it get the menu item.
@@ -83,7 +89,6 @@ export const MODULES: ModuleEntry[] = [
 
 /** Modules planned in docs/MODULES.md, shown as "coming soon" to administrators only. */
 export const UPCOMING_MODULES = [
-  { slug: "procurement", label: "Procurement", phase: "4" },
   { slug: "accounting", label: "Accounting & finance", phase: "5" },
   { slug: "command-center", label: "CEO Command Center", phase: "6" },
 ];
@@ -108,6 +113,7 @@ export const GROUPED: Record<string, { label: string; icon: IconName }> = {
   Training: { label: "Training", icon: "book" },
   Inventory: { label: "Inventory", icon: "box" },
   Sales: { label: "Sales", icon: "cart" },
+  Procurement: { label: "Procurement", icon: "truck" },
 };
 
 export function buildNav(perms: ReadonlySet<string>, academyRole: UserRole | null): { sections: NavSection[]; mobile: NavItem[] } {

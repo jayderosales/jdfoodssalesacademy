@@ -13,7 +13,7 @@ Status: **not started** / **in progress** / **done**. Phase numbers follow the a
 | 7 | Sales & CRM | built (Phase 3) | 3 | Customers, price lists, customer prices, leads, activities + GPS visits, orders, credit check, payments, fulfilment, invoices + SI register. Targets and commissions later |
 | 8 | Client portal | not started | 7 | Incl. Business Growth Center |
 | 9 | Inventory | built (Phase 2) | 2 | Products, costs/prices, ledger, batches/QA, receipts, transfers, adjustments, counts, reorder, scan |
-| 10 | Procurement | not started | 4 | Incl. suppliers, importation, landed cost |
+| 10 | Procurement | built (Phase 4) | 4 | Suppliers, prices, requests, POs (CEO approval), receiving against PO, supplier invoices + 3-way match, performance. Local suppliers only; no landed cost yet |
 | 11 | Manufacturing | not started | 8 | |
 | 12 | Quality & FDA | not started | 8 | Simple QA release in 2/4 |
 | 13 | Logistics | not started | 3b, 10 | Courier-only (no own fleet). Courier booking + POD in 3b; courier API connectors and delivery costing in 10 |

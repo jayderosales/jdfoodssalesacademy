@@ -3,6 +3,7 @@ import { Card, CardTitle, Field, Input, PageHeader, Select, Table, Td, Th } from
 import { can, getAccess, requirePermission } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { deleteReorderRule, saveReorderRule } from "../actions";
+import { requestFromReorder } from "../../procurement/actions";
 import { ProductDatalist, qtyFmt } from "../doc-parts";
 import { catalogOptions } from "../options";
 
@@ -25,7 +26,16 @@ export default async function ReorderPage() {
     <>
       <PageHeader title="Reorder" description="Products at or below their minimum. Suggested quantity = maximum − available (purchase orders come with Procurement in Phase 4)." />
       <Card className="mb-4">
-        <CardTitle>To reorder ({sug.length})</CardTitle>
+        <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
+          <CardTitle>To reorder ({sug.length})</CardTitle>
+          {sug.length > 0 && can(access, "procurement.request") && (
+            <ActionForm action={requestFromReorder} submitLabel="Create purchase request" className="flex items-center gap-2">
+              <Select name="location_id" defaultValue={sug[0].location_id} className="h-9 w-48" aria-label="Location">
+                {[...new Map(sug.map((x) => [x.location_id, x.location_name])).entries()].map(([lid, ln]) => <option key={lid} value={lid}>{ln}</option>)}
+              </Select>
+            </ActionForm>
+          )}
+        </div>
         {sug.length === 0 ? (
           <p className="text-sm text-muted-foreground">Nothing is below its reorder level.</p>
         ) : (
