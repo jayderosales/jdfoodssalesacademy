@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { ActionForm } from "@/components/action-form";
 import { RecordHistory } from "@/components/record-history";
 import { ApprovalTimeline } from "@/components/shared/approval-timeline";
+import { ApproverWarning } from "@/components/shared/approver-warning";
 import { ScanOriginal } from "@/components/shared/scan-original";
 import { Card, CardTitle, Field, Input, PageHeader, Select, Table, Td, Th } from "@/components/ui";
 import { can, getAccess, requirePermission } from "@/lib/auth";
@@ -93,6 +94,7 @@ export default async function JournalPage({ params }: { params: Promise<{ id: st
               <div className="space-y-3 text-sm">
                 {editable && (
                   <>
+                    <ApproverWarning docType="journal_entry" amount={dr} />
                     <ActionForm action={submitJournal} submitLabel="Send to CEO for approval"><input type="hidden" name="id" value={id} /></ActionForm>
                     <ActionForm action={deleteDraftJournal} submitLabel="Delete draft" variant="outline" confirm="Delete this draft?"><input type="hidden" name="id" value={id} /></ActionForm>
                   </>

@@ -21,7 +21,7 @@ export default async function PettyCashListPage({ searchParams }: { searchParams
     <>
       <PageHeader
         title="Petty cash requests"
-        description="Up to ₱50,000 is approved by the Operations manager; above that by the CEO. Cash release comes with the Finance module."
+        description="Up to ₱50,000 is approved by the Operations manager; above that by the CEO. Once approved, accounting releases the cash; then add your receipts to liquidate it."
         actions={can(access, "petty_cash.request") ? <Link href="/requests/petty-cash/new" className={buttonVariants()}>New request</Link> : undefined}
       />
       {seeAll && (

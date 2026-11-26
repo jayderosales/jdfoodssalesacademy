@@ -35,6 +35,15 @@ beforeAll(async () => {
   await t.createUser(staff2, "staff2@y.ph", ["employee"]);
 });
 
+describe("approver check", () => {
+  it("says whether anyone other than the requester can approve", async () => {
+    expect((await t.as<{ ok: boolean }>(staff, `select public.approvers_available('petty_cash', 500) ok`))[0].ok).toBe(true); // ops manager
+    // the CEO's own journal: only the CEO approves journals and nobody may approve their own
+    expect((await t.as<{ ok: boolean }>(ceo, `select public.approvers_available('journal_entry', 500) ok`))[0].ok).toBe(false);
+    expect((await t.as<{ ok: boolean }>(acct, `select public.approvers_available('journal_entry', 500) ok`))[0].ok).toBe(true);
+  });
+});
+
 describe("document scans", () => {
   it("are visible to the uploader and to whoever handles that kind, not to other staff", async () => {
     const s = (await t.as<{ id: string; status: string }>(staff, `insert into public.document_scans (kind, status) values ('supplier_bill', 'done') returning id, status`))[0];

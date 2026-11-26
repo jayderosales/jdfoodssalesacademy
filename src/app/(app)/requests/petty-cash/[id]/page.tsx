@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { ActionForm } from "@/components/action-form";
 import { RecordHistory } from "@/components/record-history";
 import { ApprovalTimeline, peopleNames } from "@/components/shared/approval-timeline";
+import { ApproverWarning } from "@/components/shared/approver-warning";
 import { Attachments } from "@/components/shared/attachments";
 import { RecordPage } from "@/components/shared/record-page";
 import { StatusBadge } from "@/components/shared/status-badge";
@@ -92,6 +93,7 @@ export default async function PettyCashPage({
         </>
       }
     >
+      {editable && <ApproverWarning docType="petty_cash" amount={p.amount} />}
       {submitted && <div className="mb-4"><Alert tone="success">Sent for approval. You&apos;ll get a notification when it&apos;s decided.</Alert></div>}
       {error && <div className="mb-4"><Alert tone="danger">Saved as a draft, but it couldn&apos;t be sent for approval: {error}</Alert></div>}
       {p.status === "returned" && mine && (

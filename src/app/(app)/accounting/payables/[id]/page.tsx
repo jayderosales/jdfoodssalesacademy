@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { ActionForm } from "@/components/action-form";
 import { RecordHistory } from "@/components/record-history";
 import { ApprovalTimeline } from "@/components/shared/approval-timeline";
+import { ApproverWarning } from "@/components/shared/approver-warning";
 import { Attachments } from "@/components/shared/attachments";
 import { Card, CardTitle, Field, Input, PageHeader, Table, Td, Th } from "@/components/ui";
 import { can, getAccess, requireUser } from "@/lib/auth";
@@ -77,6 +78,7 @@ export default async function SupplierPaymentPage({ params }: { params: Promise<
           <Card>
             <CardTitle>Next step</CardTitle>
             <div className="space-y-3 text-sm">
+              {editable && ls.length > 0 && <ApproverWarning docType="supplier_payment" amount={p.net_paid} />}
               {editable && ls.length > 0 && <ActionForm action={paymentAction} submitLabel="Send to CEO for approval"><input type="hidden" name="id" value={id} /><input type="hidden" name="step" value="submit" /></ActionForm>}
               {p.status === "submitted" && <p>Waiting for the CEO&apos;s approval.</p>}
               {p.status === "approved" && canPay && (
