@@ -133,7 +133,7 @@ export function productsTableDef(brands: { id: string; name: string }[], categor
         label: "Available",
         kind: "number",
         sortColumn: "stock_available_qty",
-        value: (r) => (r.item_type === "service" ? "" : `${Number(r.stock_available_qty ?? 0).toLocaleString("en-PH", { maximumFractionDigits: 2 })} ${r.base_unit}`),
+        value: (r) => (r.item_type === "service" ? "" : Number(r.stock_available_qty ?? 0).toLocaleString("en-PH", { maximumFractionDigits: 2 })),
       },
       { key: "active", label: "Status", kind: "status", value: (r) => (r.active ? "active" : "inactive") },
     ],
