@@ -1,10 +1,12 @@
 import Link from "next/link";
 import { Card, CardTitle } from "@/components/ui";
+import { KIND_INFO, type ScanKind } from "@/lib/scan/kinds";
 import { createClient } from "@/lib/supabase/server";
 
 /** Header button that opens "Scan a document" for one kind. */
 export function ScanLink({ kind, label = "Scan a document" }: { kind: string; label?: string }) {
-  return <Link href={`/scan?kind=${kind}`} className="inline-flex items-center gap-1 rounded-lg border bg-card px-3 py-2 text-sm font-medium text-brand hover:bg-muted">📷 {label}</Link>;
+  const base = KIND_INFO[kind as ScanKind]?.section === "inventory" ? "/inventory/documents" : "/accounting/documents";
+  return <Link href={`${base}?kind=${kind}`} className="inline-flex items-center gap-1 rounded-lg border bg-card px-3 py-2 text-sm font-medium text-brand hover:bg-muted">📷 {label}</Link>;
 }
 
 /** The photo a record was encoded from, if it came from "Scan a document". Shows nothing otherwise (or if you can't see the scan). */

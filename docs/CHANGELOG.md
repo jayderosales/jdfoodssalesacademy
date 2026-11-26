@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026-11-26 — Speed, whole-app simulation, Scan a document moved
+- **Server moved to Singapore** (Vercel region sin1, next to the database). It ran in Washington, USA, so every database call crossed the Pacific twice (~200 ms each, several per page).
+- **Reports 80–130× faster at volume.** Row-level security checked permissions once per row; now broad checks run once per query (same access rules, all role tests pass). With a year of data: CEO snapshot 18.9 s → 0.17 s, trial balance 7.7 s → 0.06 s, sales breakdowns 3.3 s → 0.04 s.
+- **Faster page shell**: the top-bar approvals count and other layout data load in one parallel round trip; the "last active" update runs after the page is sent.
+- **Whole-app simulation** (supabase/tests/simulation.test.ts): one business day through every module (buy, receive, QA, bill, pay supplier, sell, pay, pack, release, deliver, petty cash, production, transmittal, CEO reports) with the books checked, plus a year of volume with every report timed (fails if any report takes over 1 s).
+- **Scan a document** moved from the main sidebar to a tab in Inventory and in Accounting (each showing only its own document types). The barcode scanner tab is now "Scan barcode".
+- 325 tests. Migration 20261210000001 applied to Supabase.
+
 ## 2026-11-26 — Phase 6: CEO reports (Command Center)
 - New **CEO reports** section (CEO only). **Overview**: sales today, month to date and year to date (vs last month), gross profit and margin, sales vs target with the month's pace, a 30-day daily sales chart, cash and bank, customers overdue, supplier bills due in 7 days, payments to confirm, inventory value, out of stock / below minimum, near-expiry, today's production, orders waiting for stock, approvals waiting for you, escalated items, unposted accounting events. Every number links to its details.
 - **Sales**: daily, month to date, year to date, any date range, by channel, brand, rep, top customers and top products, vs monthly and year-to-date targets.

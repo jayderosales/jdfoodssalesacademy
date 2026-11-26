@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { after } from "next/server";
 import { CheckSquare } from "lucide-react";
 import { BottomNav, ModuleTabs, SideNavSections } from "@/components/app-nav";
 import { CommandPalette } from "@/components/command-palette";
@@ -14,21 +15,23 @@ const ACTIVITY_THROTTLE_MS = 10 * 60 * 1000;
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const profile = await requireUser();
-  const [settings, access, roleNames] = await Promise.all([getSettings(), getAccess(), getMyRoleNames(profile.id)]);
+  const supabase = await createClient();
+  // everything the shell needs, in one parallel round trip
+  const [settings, access, roleNames, { data: approvalsWaiting }] = await Promise.all([
+    getSettings(),
+    getAccess(),
+    getMyRoleNames(profile.id),
+    supabase.rpc("my_pending_approval_count"),
+  ]);
   const { sections, mobile } = buildNav(access.permissions, profile.role);
   const roleLabel = roleNames.join(", ") || "No role";
-  const supabaseForCounts = await createClient();
-  const { data: myIds } = await supabaseForCounts.rpc("my_approver_ids");
-  const { count: approvalsWaiting } = await supabaseForCounts
-    .from("approval_steps")
-    .select("id", { count: "exact", head: true })
-    .eq("status", "pending")
-    .overlaps("approver_ids", (myIds as string[] | null) ?? [profile.id]);
 
-  // "last active" feeds the at-risk flag; update at most every 10 minutes.
+  // "last active" feeds the at-risk flag; update at most every 10 minutes, after the page is sent (not in its way).
   if (!profile.last_active_at || Date.now() - new Date(profile.last_active_at).getTime() > ACTIVITY_THROTTLE_MS) {
-    const supabase = await createClient();
-    await supabase.from("profiles").update({ last_active_at: new Date().toISOString() }).eq("id", profile.id);
+    after(async () => {
+      const { error } = await supabase.from("profiles").update({ last_active_at: new Date().toISOString() }).eq("id", profile.id);
+      if (error) console.error("last_active_at update failed", error.message);
+    });
   }
 
   const logoUrl = settings?.logo_path

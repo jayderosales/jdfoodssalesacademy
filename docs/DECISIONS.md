@@ -108,3 +108,8 @@ Format: date — decision — why — alternatives considered.
 - **Decision:** The Command Center reads aggregates from Postgres functions (`ceo_snapshot`, `ceo_sales_daily`, `ceo_sales_breakdown`, `ceo_rep_performance`) that check `ceo.reports.view` (CEO role only). Sales are counted at release (Ready for pickup), the same moment the ledger books the sale, and include VAT as invoiced. Gross profit comes from the ledger. Monthly sales targets (company and per rep) live in `sales_targets`. The morning summary goes through the notification engine, so it works in-app now and by email once Resend is on.
 - **Why:** Owner's answers: all areas on the first screen, daily email, CEO only. Database aggregation avoids row limits and keeps every figure consistent with the module screens (receivables and payables share one loader).
 - **Alternatives:** A BI tool on a replica (another vendor, numbers drift from the app); counting sales at order placement (would include unpaid and cancelled orders).
+
+## 2026-11-26 — Run the app in Singapore; RLS checks once per query
+- **Decision:** Vercel functions run in sin1 (Singapore), the same region as the Supabase database. Row-level security policies wrap row-independent permission checks in `(select ...)` and put a "sees everything" fast path before per-row functions.
+- **Why:** The default region was iad1 (US East), adding ~200 ms per database round trip for users in the Philippines. The simulation showed per-row permission checks making reports take seconds at a year of data.
+- **Alternatives:** Caching pages (stale numbers, complex invalidation); moving the database (Singapore is already closest to the users).

@@ -38,7 +38,6 @@ export const MODULES: ModuleEntry[] = [
   { section: "", href: "/dashboard", label: "Home", icon: "home", mobile: 1 },
   { section: "", href: "/approvals", label: "Approvals", icon: "approve", perm: ["petty_cash.request", "approvals.view_all", "readonly.all"], mobile: 3 },
   { section: "", href: "/requests/petty-cash", label: "Petty cash", icon: "wallet", perm: ["petty_cash.request", "petty_cash.view_all", "readonly.all"] },
-  { section: "", href: "/scan", label: "Scan a document", icon: "scan", match: ["/scan"] },
   { section: "", href: "/accounting/transmittals", label: "Transmittals", icon: "clipboard" },
 
   { section: "Training", href: "/learn", label: "Learn", icon: "book", perm: ["academy.learn", "academy.team.manage"], mobile: 2 },
@@ -60,7 +59,8 @@ export const MODULES: ModuleEntry[] = [
   { section: "Inventory", href: "/inventory/adjustments", label: "Adjustments", icon: "sliders", perm: ["inventory.adjust.request", "inventory.view_cost"] },
   { section: "Inventory", href: "/inventory/counts", label: "Counts", icon: "clipboard", perm: ["inventory.count"] },
   { section: "Inventory", href: "/inventory/reorder", label: "Reorder", icon: "chart", perm: ["inventory.reorder.manage", "inventory.view_cost"] },
-  { section: "Inventory", href: "/inventory/scan", label: "Scan", icon: "scan", perm: ["inventory.view"] },
+  { section: "Inventory", href: "/inventory/scan", label: "Scan barcode", icon: "scan", perm: ["inventory.view"] },
+  { section: "Inventory", href: "/inventory/documents", label: "Scan a document", icon: "scan", perm: ["inventory.receive", "inventory.transfer"] },
 
   { section: "CEO reports", href: "/ceo", label: "Overview", icon: "gauge", perm: ["ceo.reports.view"] },
   { section: "CEO reports", href: "/ceo/sales", label: "Sales", icon: "chart", perm: ["ceo.reports.view"] },
@@ -92,6 +92,7 @@ export const MODULES: ModuleEntry[] = [
   { section: "Accounting", href: "/accounting/receivables", label: "Receivables", icon: "users", perm: ["ar.manage", "accounting.view"] },
   { section: "Accounting", href: "/accounting/payables", label: "Payables", icon: "wallet", perm: ["ap.payments.create", "accounting.view"] },
   { section: "Accounting", href: "/accounting/disbursements", label: "Disbursements", icon: "wallet", perm: ["accounting.view", "ap.payments.create", "accounting.journals.create"] },
+  { section: "Accounting", href: "/accounting/documents", label: "Scan a document", icon: "scan", perm: ["procurement.invoices.manage", "accounting.journals.create", "transmittals.receive", "sales.payments.confirm"] },
   { section: "Accounting", href: "/accounting/banks", label: "Banks", icon: "layers", perm: ["bank.reconcile", "accounting.view"] },
   { section: "Accounting", href: "/accounting/journals", label: "Journals", icon: "clipboard", perm: ["accounting.view", "accounting.journals.create"] },
   { section: "Accounting", href: "/accounting/ledger", label: "Ledger", icon: "receipt", perm: ["accounting.view"] },

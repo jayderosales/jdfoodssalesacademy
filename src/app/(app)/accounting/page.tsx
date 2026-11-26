@@ -67,7 +67,7 @@ export default async function AccountingOverview() {
           {can(access, "accounting.journals.create") && <ActionForm action={retryUnposted} submitLabel="Retry all" className="mt-3" />}
         </Card>
       )}
-      <p className="mt-4 text-sm text-muted-foreground">Tasks: <Link href="/accounting/payables" className="underline">pay suppliers</Link> · <Link href="/accounting/banks" className="underline">reconcile banks and release petty cash</Link> · <Link href="/accounting/receivables" className="underline">follow up overdue customers</Link> · <Link href="/accounting/periods" className="underline">close the month</Link> · <Link href="/accounting/transmittals" className="underline">receive transmittals</Link> · <Link href="/scan?section=accounting" className="underline">scan a bill, receipt or payment slip</Link></p>
+      <p className="mt-4 text-sm text-muted-foreground">Tasks: <Link href="/accounting/payables" className="underline">pay suppliers</Link> · <Link href="/accounting/banks" className="underline">reconcile banks and release petty cash</Link> · <Link href="/accounting/receivables" className="underline">follow up overdue customers</Link> · <Link href="/accounting/periods" className="underline">close the month</Link> · <Link href="/accounting/transmittals" className="underline">receive transmittals</Link> · <Link href="/accounting/documents" className="underline">scan a bill, receipt or payment slip</Link></p>
     </>
   );
 }

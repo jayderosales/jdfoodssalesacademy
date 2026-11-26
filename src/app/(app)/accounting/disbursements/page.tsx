@@ -70,7 +70,7 @@ export default async function DisbursementsPage({ searchParams }: { searchParams
       <PageHeader
         title="Disbursements"
         description="All money going out: supplier payments, petty cash released, and expenses paid from company cash or bank. Click a row to see the payment, request or journal behind it."
-        actions={canRecord ? <Link href="/scan?kind=expense_receipt" className="rounded-lg bg-brand px-3 py-2 text-sm font-medium text-white">📷 Scan a receipt</Link> : undefined}
+        actions={canRecord ? <Link href="/accounting/documents?kind=expense_receipt" className="rounded-lg bg-brand px-3 py-2 text-sm font-medium text-white">📷 Scan a receipt</Link> : undefined}
       />
       <BooksBanner />
       <div className="mb-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
@@ -128,7 +128,7 @@ export default async function DisbursementsPage({ searchParams }: { searchParams
           {canRecord && (
             <Card>
               <CardTitle>Record an expense</CardTitle>
-              <p className="mb-2 text-sm text-muted-foreground">For an expense paid from company cash or bank. <Link href="/scan?kind=expense_receipt" className="underline">Scan the receipt</Link> to have it read for you, or type it here. Either way, a draft journal is created for the CEO.</p>
+              <p className="mb-2 text-sm text-muted-foreground">For an expense paid from company cash or bank. <Link href="/accounting/documents?kind=expense_receipt" className="underline">Scan the receipt</Link> to have it read for you, or type it here. Either way, a draft journal is created for the CEO.</p>
               <ActionForm action={recordExpense} submitLabel="Record and open journal">
                 <Field label="Store / vendor" htmlFor="vendor_name"><Input id="vendor_name" name="vendor_name" required /></Field>
                 <div className="grid grid-cols-2 gap-2">
