@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026-11-26 — Shop: bank details and proof-of-payment upload
+- **Checkout** now shows where to pay (bank, account name, account number, with copy buttons) and lets the customer attach a photo or PDF of their proof of payment before placing the order. Phone photos are shrunk before upload.
+- **Order page**: same bank details. One form takes a photo, a reference number, or both (bank transfer, GCash or Maya).
+- Proofs are stored privately. Guests have no account, so the server stores them after checking the order number + mobile. A pending payment is created and finance gets the usual notification. **Sales → Payments** shows "View proof of payment" (10-minute private link, finance and sales heads only). Nothing is confirmed automatically.
+- Bank details are settings: **Settings → Online shop** (bank, account name, account number). Set to Unionbank · Jay De Rosales Venture Corporation · 002610027479.
+- **Inventory → Products** has an **Available** column (sellable quantity across warehouses). Opening stock of 100 per product (385 products, ₱0 cost until real costs are entered) was loaded into Plaridel FG warehouse.
+- 326 tests. Migrations 20261210000002–03 applied to Supabase.
+
 ## 2026-11-26 — Speed, whole-app simulation, Scan a document moved
 - **Server moved to Singapore** (Vercel region sin1, next to the database). It ran in Washington, USA, so every database call crossed the Pacific twice (~200 ms each, several per page).
 - **Reports 80–130× faster at volume.** Row-level security checked permissions once per row; now broad checks run once per query (same access rules, all role tests pass). With a year of data: CEO snapshot 18.9 s → 0.17 s, trial balance 7.7 s → 0.06 s, sales breakdowns 3.3 s → 0.04 s.

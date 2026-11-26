@@ -4,11 +4,13 @@ import { useCallback, useEffect, useState, useTransition } from "react";
 import { Alert, Button, Field, Input, Select } from "@/components/ui";
 import { formatMoney } from "@/lib/money";
 import { formatDate } from "@/lib/utils";
-import { getShopOrder, submitShopPayment, type ShopOrderStatus } from "../actions";
+import { shrinkImage } from "@/lib/image-shrink";
+import { getShopOrder, submitShopPayment, uploadPaymentProof, type PaymentDetails, type ShopOrderStatus } from "../actions";
+import { BankDetails, ProofFields } from "../payment-box";
 import { recalledMobile, rememberOrder } from "../cart";
 
 const STEPS: { key: string; label: string; help: string }[] = [
-  { key: "awaiting_payment", label: "Waiting for payment", help: "Pay and enter your reference number below." },
+  { key: "awaiting_payment", label: "Waiting for payment", help: "Pay, then send your proof of payment below." },
   { key: "confirmed", label: "Payment confirmed", help: "We're preparing your order." },
   { key: "packing", label: "Packing", help: "Your items are being packed." },
   { key: "ready_for_pickup", label: "Ready for the courier", help: "Book your courier for pickup if you haven't yet." },
@@ -18,7 +20,7 @@ const STEPS: { key: string; label: string; help: string }[] = [
 const METHOD: Record<string, string> = { bank_transfer: "Bank transfer", gcash: "GCash", maya: "Maya", paymongo: "Online", cash: "Cash", cheque: "Cheque", card: "Card", other: "Other" };
 
 /** Order page for shop customers: needs the order number + the mobile used (remembered on this device after checkout). */
-export function OrderView({ number, isNew }: { number: string; isNew?: boolean }) {
+export function OrderView({ number, isNew, proof, payment }: { number: string; isNew?: boolean; proof?: string; payment: PaymentDetails | null }) {
   const [mobile, setMobile] = useState("");
   const [order, setOrder] = useState<ShopOrderStatus | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -71,7 +73,9 @@ export function OrderView({ number, isNew }: { number: string; isNew?: boolean }
 
   return (
     <div className="mx-auto max-w-3xl space-y-6">
-      {isNew && <Alert tone="success">Order placed! Save your order number: <b>{order.number}</b>. Next step: pay and enter your reference number below.</Alert>}
+      {isNew && proof === "sent" && <Alert tone="success">Order placed and your proof of payment was received! Save your order number: <b>{order.number}</b>. We&apos;ll confirm your payment and start packing.</Alert>}
+      {isNew && proof === "failed" && <Alert tone="danger">Your order <b>{order.number}</b> is placed, but the proof of payment didn&apos;t upload. Please send it again below.</Alert>}
+      {isNew && !proof && <Alert tone="success">Order placed! Save your order number: <b>{order.number}</b>. Next step: pay, then send your proof of payment below.</Alert>}
       <div className="flex flex-wrap items-end justify-between gap-2">
         <div>
           <h1 className="text-2xl font-bold">Order {order.number}</h1>
@@ -96,7 +100,7 @@ export function OrderView({ number, isNew }: { number: string; isNew?: boolean }
       {order.status === "awaiting_payment" && (
         <section className="space-y-3 rounded-2xl border p-4">
           <h2 className="text-lg font-bold">Pay {formatMoney(balance.toFixed(2))}</h2>
-          <p className="whitespace-pre-line text-sm">{order.instructions}</p>
+          <BankDetails details={payment ?? { bank: "", account_name: "", account_no: "", instructions: order.instructions }} amount={balance.toFixed(2)} />
           {waitingCheck ? (
             <Alert tone="neutral">We received your payment details and are checking them. This page updates once confirmed.</Alert>
           ) : (
@@ -105,8 +109,23 @@ export function OrderView({ number, isNew }: { number: string; isNew?: boolean }
               onSubmit={(e) => {
                 e.preventDefault();
                 const f = new FormData(e.currentTarget);
+                const file = f.get("proof");
+                const hasFile = file instanceof File && file.size > 0;
+                if (!hasFile && String(f.get("reference") ?? "").trim().length < 4) return setError("Upload your proof of payment, or enter the reference number from your receipt.");
                 start(async () => {
-                  const r = await submitShopPayment(order.number, mobile, { method: String(f.get("method")), reference: String(f.get("reference")), amount: String(f.get("amount")) });
+                  let r: { error?: string; message?: string };
+                  if (hasFile) {
+                    const fd = new FormData();
+                    fd.set("number", order.number);
+                    fd.set("mobile", mobile);
+                    fd.set("proof", await shrinkImage(file as File));
+                    fd.set("reference", String(f.get("reference") ?? ""));
+                    fd.set("amount", String(f.get("amount") ?? ""));
+                    fd.set("method", String(f.get("method") ?? "bank_transfer"));
+                    r = await uploadPaymentProof(fd);
+                  } else {
+                    r = await submitShopPayment(order.number, mobile, { method: String(f.get("method")), reference: String(f.get("reference")), amount: String(f.get("amount")) });
+                  }
                   if (r.error) setError(r.error);
                   else {
                     setError(null);
@@ -117,11 +136,11 @@ export function OrderView({ number, isNew }: { number: string; isNew?: boolean }
               }}
             >
               <Field label="Paid by" htmlFor="method">
-                <Select id="method" name="method" defaultValue="gcash"><option value="gcash">GCash</option><option value="maya">Maya</option><option value="bank_transfer">Bank transfer</option></Select>
+                <Select id="method" name="method" defaultValue="bank_transfer"><option value="bank_transfer">Bank transfer</option><option value="gcash">GCash</option><option value="maya">Maya</option></Select>
               </Field>
-              <Field label="Reference number" htmlFor="reference"><Input id="reference" name="reference" required minLength={4} /></Field>
               <Field label="Amount paid (₱)" htmlFor="amount"><Input id="amount" name="amount" required inputMode="decimal" defaultValue={balance.toFixed(2)} /></Field>
-              <div className="sm:col-span-3"><Button type="submit" disabled={pending}>{pending ? "Sending…" : "I've paid: send reference"}</Button></div>
+              <div className="sm:col-span-3"><ProofFields /></div>
+              <div className="sm:col-span-3"><Button type="submit" disabled={pending}>{pending ? "Sending…" : "I've paid: send proof"}</Button></div>
             </form>
           )}
           {order.paymongo && (

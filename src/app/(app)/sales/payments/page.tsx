@@ -12,7 +12,7 @@ import { METHOD_LABEL, customerOptions } from "../parts";
 
 export const metadata = { title: "Payments" };
 
-type Pay = { id: string; number: string; method: string; amount: string; reference: string; status: string; paid_on: string; from_customer: boolean; received_by: string | null; created_at: string; reject_reason: string; customers: { id: string; name: string } | null; sales_orders: { id: string; number: string; total: string } | null };
+type Pay = { id: string; number: string; method: string; amount: string; reference: string; status: string; paid_on: string; from_customer: boolean; received_by: string | null; created_at: string; reject_reason: string; proof_path: string | null; customers: { id: string; name: string } | null; sales_orders: { id: string; number: string; total: string } | null };
 
 /** Finance checks each payment against the bank / GCash / Maya statement before it counts. */
 export default async function PaymentsPage() {
@@ -20,7 +20,7 @@ export default async function PaymentsPage() {
   const access = await getAccess();
   const canConfirm = can(access, "sales.payments.confirm");
   const supabase = await createClient();
-  const sel = "id, number, method, amount, reference, status, paid_on, from_customer, received_by, created_at, reject_reason, customers(id, name), sales_orders(id, number, total)";
+  const sel = "id, number, method, amount, reference, status, paid_on, from_customer, received_by, created_at, reject_reason, proof_path, customers(id, name), sales_orders(id, number, total)";
   const [{ data: pending }, { data: recent }, customers] = await Promise.all([
     supabase.from("payments").select(sel).eq("status", "pending").order("created_at").limit(200),
     supabase.from("payments").select(sel).neq("status", "pending").order("created_at", { ascending: false }).limit(50),
@@ -29,6 +29,13 @@ export default async function PaymentsPage() {
   const pend = (pending as unknown as Pay[] | null) ?? [];
   const done = (recent as unknown as Pay[] | null) ?? [];
   const pendTotal = pend.reduce((s, p) => s + Number(p.amount), 0);
+  // customers' proof-of-payment photos: short-lived private links (storage policy limits them to finance / sales heads)
+  const withProof = pend.filter((p) => p.proof_path);
+  const proofUrls = new Map<string, string>();
+  if (withProof.length) {
+    const { data: signed } = await supabase.storage.from("payment-proofs").createSignedUrls(withProof.map((p) => p.proof_path!), 600);
+    for (const x of signed ?? []) if (x.path && x.signedUrl) proofUrls.set(x.path, x.signedUrl);
+  }
 
   return (
     <>
@@ -48,6 +55,9 @@ export default async function PaymentsPage() {
                         {p.sales_orders && <> · <Link href={`/sales/orders/${p.sales_orders.id}`} className="underline">{p.sales_orders.number}</Link> (₱{Number(p.sales_orders.total).toLocaleString("en-PH")})</>}
                         {" · "}paid {formatDate(p.paid_on)} · {p.from_customer ? "sent by customer" : "recorded by staff"}
                       </p>
+                      {p.proof_path && (proofUrls.get(p.proof_path)
+                        ? <a href={proofUrls.get(p.proof_path)} target="_blank" rel="noreferrer" className="mt-1 inline-block font-medium text-brand underline">View proof of payment</a>
+                        : <p className="mt-1 text-xs text-muted-foreground">Proof of payment attached (you don&apos;t have access to view it).</p>)}
                     </div>
                     {canConfirm && p.received_by !== me.id && (
                       <div className="flex flex-wrap items-start gap-2">

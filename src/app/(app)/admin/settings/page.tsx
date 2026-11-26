@@ -19,7 +19,7 @@ export default async function SettingsPage() {
     .order("created_at")
     .limit(1)
     .maybeSingle();
-  const shop = s as unknown as { shop_enabled?: boolean; paymongo_enabled?: boolean; unpaid_order_hours?: number; shop_payment_instructions?: string };
+  const shop = s as unknown as { shop_enabled?: boolean; paymongo_enabled?: boolean; unpaid_order_hours?: number; shop_payment_instructions?: string; shop_bank_name?: string; shop_bank_account_name?: string; shop_bank_account_no?: string };
   const canBrand = can(access, ["admin.settings.manage", "academy.admin"]);
   const isAcademyAdmin = can(access, "academy.admin");
 
@@ -48,7 +48,13 @@ export default async function SettingsPage() {
             <CardTitle>Online shop</CardTitle>
             <ActionForm action={saveShop} submitLabel="Save shop settings">
               <label className="flex items-center gap-2 text-sm"><input type="checkbox" name="shop_enabled" defaultChecked={shop.shop_enabled ?? true} /> Shop is open (customers can place orders)</label>
-              <Field label="Payment instructions shown to customers" htmlFor="shop_payment_instructions" hint="Bank account, GCash and Maya numbers and account names. Customers see this on their order page.">
+              <div className="grid gap-2 sm:grid-cols-3">
+                <Field label="Bank" htmlFor="shop_bank_name"><Input id="shop_bank_name" name="shop_bank_name" defaultValue={shop.shop_bank_name ?? ""} /></Field>
+                <Field label="Account name" htmlFor="shop_bank_account_name"><Input id="shop_bank_account_name" name="shop_bank_account_name" defaultValue={shop.shop_bank_account_name ?? ""} /></Field>
+                <Field label="Account number" htmlFor="shop_bank_account_no"><Input id="shop_bank_account_no" name="shop_bank_account_no" inputMode="numeric" defaultValue={shop.shop_bank_account_no ?? ""} /></Field>
+              </div>
+              <p className="-mt-1 text-xs text-muted-foreground">Shown at checkout and on the order page, with copy buttons. Customers can upload their proof of payment.</p>
+              <Field label="Payment instructions shown to customers" htmlFor="shop_payment_instructions" hint="Extra notes under the bank details (e.g. GCash/Maya numbers, cut-off times).">
                 <Textarea id="shop_payment_instructions" name="shop_payment_instructions" rows={5} defaultValue={shop.shop_payment_instructions ?? ""} required />
               </Field>
               <Field label="Cancel unpaid shop orders after (hours)" htmlFor="unpaid_order_hours"><Input id="unpaid_order_hours" name="unpaid_order_hours" type="number" min={1} max={720} defaultValue={shop.unpaid_order_hours ?? 48} /></Field>

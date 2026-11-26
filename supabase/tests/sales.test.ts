@@ -313,3 +313,25 @@ describe("audit", () => {
     expect(missing.rows).toEqual([]);
   });
 });
+
+describe("shop: proof of payment photo and bank details", () => {
+  it("guests see the bank details; a proof is recorded only for the right order and mobile, through the server", async () => {
+    await t.db.query(`update public.app_settings set shop_bank_name = 'Unionbank', shop_bank_account_name = 'Test Corp', shop_bank_account_no = '0001'`);
+    const d = (await t.asAnon<{ d: { bank: string; account_no: string } }>(`select public.shop_payment_details() d`))[0].d;
+    expect(d).toMatchObject({ bank: "Unionbank", account_no: "0001" });
+
+    const r = (await shopOrder("09185551234", [{ sku: "P1-1L", qty: 1 }], "Proof Buyer"))[0].r;
+    const path = `${r.number}/abc.jpg`;
+    // guests can't call it directly (only the server, after storing the photo)
+    await expect(t.asAnon(`select public.submit_shop_payment_proof($1, '09185551234', $2, '', 256)`, [r.number, path])).rejects.toThrow(/permission denied/);
+    // the server (service role) — wrong mobile, another order's file, then the real one
+    await expect(t.db.query(`select public.submit_shop_payment_proof($1, '09180000000', $2, '', 256)`, [r.number, path])).rejects.toThrow(/not found/);
+    await expect(t.db.query(`select public.submit_shop_payment_proof($1, '09185551234', 'SO-OTHER/x.jpg', '', 256)`, [r.number])).rejects.toThrow(/doesn't belong/);
+    await t.db.query(`select public.submit_shop_payment_proof($1, '09185551234', $2, '', 256)`, [r.number, path]);
+    const p = await one<{ status: string; method: string; proof_path: string; reference: string }>(`select p.status, p.method, p.proof_path, p.reference from public.payments p join public.sales_orders o on o.id = p.order_id where o.number = $1`, [r.number]);
+    expect(p).toMatchObject({ status: "pending", method: "bank_transfer", proof_path: path, reference: "Proof photo" });
+    // finance still confirms it like any other payment
+    const st = (await t.asAnon<{ s: { payments: { status: string }[] } }>(`select public.shop_order_status($1, '09185551234') s`, [r.number]))[0].s;
+    expect(st.payments[0].status).toBe("pending");
+  });
+});

@@ -7,13 +7,15 @@ import { Trash2 } from "lucide-react";
 import { Alert, Button, Field, Input, Textarea } from "@/components/ui";
 import { formatMoney, fromCentavos, toCentavos } from "@/lib/money";
 import { lineTotalCentavos, normalizePhMobile } from "@/lib/sales/pricing";
-import { placeShopOrder, priceCart } from "../actions";
+import { placeShopOrder, priceCart, uploadPaymentProof, type PaymentDetails } from "../actions";
+import { BankDetails, ProofFields } from "../payment-box";
+import { shrinkImage } from "@/lib/image-shrink";
 import { rememberOrder, useCart } from "../cart";
 
 type Priced = Awaited<ReturnType<typeof priceCart>>[number];
 
 /** Cart + checkout on one page: fewer steps on a phone. */
-export function CartView() {
+export function CartView({ payment }: { payment: PaymentDetails | null }) {
   const { items, ready, setQty, clear } = useCart();
   const [priced, setPriced] = useState<Map<string, Priced>>(new Map());
   const [error, setError] = useState<string | null>(null);
@@ -54,12 +56,26 @@ export function CartView() {
       courier_note: String(f.get("courier_note") ?? ""), notes: String(f.get("notes") ?? ""),
       lines: lines.filter((l) => !l.gone).map((l) => ({ sku: l.sku, qty: l.qty })),
     };
+    const proof = f.get("proof");
+    const reference = String(f.get("reference") ?? "");
     start(async () => {
       const r = await placeShopOrder(payload);
       if (r.error || !r.number) return setError(r.error ?? "Something went wrong.");
       rememberOrder(r.number, mobile);
       clear();
-      router.push(`/shop/order/${r.number}?new=1`);
+      // optional proof of payment: upload it against the new order (the order is already placed either way)
+      let proofState = "";
+      if (proof instanceof File && proof.size > 0) {
+        const fd = new FormData();
+        fd.set("number", r.number);
+        fd.set("mobile", mobile);
+        fd.set("proof", await shrinkImage(proof));
+        fd.set("reference", reference);
+        if (r.total) fd.set("amount", r.total);
+        const up = await uploadPaymentProof(fd);
+        proofState = up.error ? "&proof=failed" : "&proof=sent";
+      }
+      router.push(`/shop/order/${r.number}?new=1${proofState}`);
     });
   }
 
@@ -115,9 +131,15 @@ export function CartView() {
           <Field label="ZIP code" htmlFor="zip"><Input id="zip" name="zip" inputMode="numeric" autoComplete="postal-code" /></Field>
           <Field label="Courier" htmlFor="courier_note" hint="Which courier will you book (e.g. Lalamove, J&T, LBC)? Or say you'll pick it up."><Input id="courier_note" name="courier_note" /></Field>
           <Field label="Notes (optional)" htmlFor="notes"><Textarea id="notes" name="notes" rows={2} /></Field>
+          <div className="space-y-2 border-t pt-3">
+            <h3 className="font-semibold">Payment</h3>
+            <BankDetails details={payment} amount={fromCentavos(total)} />
+            <p className="text-xs text-muted-foreground">Already paid? Attach the receipt now. Or place the order first and send it from your order page later.</p>
+            <ProofFields />
+          </div>
           {error && <Alert tone="danger">{error}</Alert>}
           <Button type="submit" className="w-full" disabled={pending || blocked}>{pending ? "Placing order…" : `Place order · ${formatMoney(fromCentavos(total))}`}</Button>
-          <p className="text-xs text-muted-foreground">After you order, pay by bank transfer, GCash or Maya and enter your reference number on the order page. We pack your order once payment is confirmed.</p>
+          <p className="text-xs text-muted-foreground">We pack your order once we confirm your payment. You can also send your proof of payment from the order page after ordering.</p>
         </form>
       </section>
     </div>

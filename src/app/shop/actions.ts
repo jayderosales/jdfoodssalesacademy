@@ -1,7 +1,7 @@
 "use server";
 
 import { z } from "zod";
-import { createClient } from "@/lib/supabase/server";
+import { createAdminClient, createClient, serviceKeyMissing } from "@/lib/supabase/server";
 import { getCatalog, getShopPrices } from "@/lib/sales/shop";
 import { parseMoney } from "@/lib/money";
 
@@ -89,4 +89,72 @@ export async function submitShopPayment(number: string, mobile: string, form: { 
   });
   if (error) return { error: friendly(error) };
   return { message: "Thanks! We'll check your payment and update this page." };
+}
+
+export interface PaymentDetails {
+  bank: string;
+  account_name: string;
+  account_no: string;
+  instructions: string;
+}
+
+/** Bank details customers pay to (Settings → Online shop). */
+export async function getPaymentDetails(): Promise<PaymentDetails | null> {
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("shop_payment_details");
+  if (error) {
+    console.error("shop_payment_details", error.message);
+    return null;
+  }
+  return data as PaymentDetails;
+}
+
+const PROOF_TYPES: Record<string, string> = { "image/jpeg": "jpg", "image/png": "png", "image/webp": "webp", "image/heic": "heic", "application/pdf": "pdf" };
+const PROOF_MAX = 10 * 1024 * 1024;
+
+/**
+ * Customer uploads a photo of their proof of payment (checkout or order page). Guests have no account, so the server
+ * stores the file with the service key after checking the order number + mobile, and records a pending payment that
+ * finance checks and confirms. Form fields: number, mobile, proof (file), reference (optional), amount (optional).
+ */
+export async function uploadPaymentProof(form: FormData): Promise<{ error?: string; message?: string }> {
+  const number = String(form.get("number") ?? "").trim().toUpperCase();
+  const mobile = String(form.get("mobile") ?? "").trim();
+  const file = form.get("proof");
+  if (!/^[A-Z0-9-]{3,30}$/.test(number)) return { error: "Check the order number." };
+  if (!(file instanceof File) || file.size === 0) return { error: "Choose a photo of your proof of payment." };
+  const ext = PROOF_TYPES[file.type];
+  if (!ext) return { error: "Upload a photo (JPG, PNG, WebP, HEIC) or a PDF." };
+  if (file.size > PROOF_MAX) return { error: "That file is larger than 10 MB. Try a smaller photo." };
+
+  // the order must exist for this mobile and be waiting for payment
+  const supabase = await createClient();
+  const { data: st } = await supabase.rpc("shop_order_status", { p_number: number, p_mobile: mobile });
+  const order = st as { status: string; total: string; paid: string } | null;
+  if (!order) return { error: "We couldn't find that order for this mobile number." };
+  if (order.status !== "awaiting_payment") return { error: "This order isn't waiting for payment." };
+  const typed = parseMoney(String(form.get("amount") ?? ""));
+  const balance = (Math.max(0, Number(order.total) - Number(order.paid))).toFixed(2);
+  const amount = typed && Number(typed) > 0 ? typed : balance;
+
+  if (serviceKeyMissing()) {
+    console.error("uploadPaymentProof: SUPABASE_SERVICE_ROLE_KEY not set");
+    return { error: "Uploading isn't available right now. Please send your reference number instead." };
+  }
+  const admin = createAdminClient();
+  const path = `${number}/${crypto.randomUUID()}.${ext}`;
+  const { error: upErr } = await admin.storage.from("payment-proofs").upload(path, file, { contentType: file.type, upsert: false });
+  if (upErr) {
+    console.error("payment proof upload", upErr.message);
+    return { error: "The photo couldn't be uploaded. Please try again." };
+  }
+  const { error } = await admin.rpc("submit_shop_payment_proof", {
+    p_number: number, p_mobile: mobile, p_path: path, p_reference: String(form.get("reference") ?? "").slice(0, 60), p_amount: amount,
+    p_method: ["bank_transfer", "gcash", "maya"].includes(String(form.get("method"))) ? String(form.get("method")) : "bank_transfer",
+  });
+  if (error) {
+    await admin.storage.from("payment-proofs").remove([path]);
+    return { error: friendly(error) };
+  }
+  return { message: "Thanks! We received your proof of payment. We'll check it and update this page." };
 }

@@ -129,6 +129,9 @@ const shopSchema = z.object({
   paymongo_enabled: z.preprocess((v) => v === "on", z.boolean()),
   unpaid_order_hours: z.coerce.number().int().min(1, "At least 1 hour.").max(720),
   shop_payment_instructions: z.string().trim().min(10, "Write the payment instructions customers will see.").max(2000),
+  shop_bank_name: z.string().trim().max(80),
+  shop_bank_account_name: z.string().trim().max(160),
+  shop_bank_account_no: z.string().trim().max(40).regex(/^[0-9 -]*$/, "Account number: digits only."),
 });
 
 /** Online shop: open/closed, payment instructions (bank / GCash / Maya details), unpaid-order auto-cancel. */
