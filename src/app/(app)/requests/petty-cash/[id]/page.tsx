@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ActionForm } from "@/components/action-form";
 import { RecordHistory } from "@/components/record-history";
@@ -5,8 +6,8 @@ import { ApprovalTimeline, peopleNames } from "@/components/shared/approval-time
 import { Attachments } from "@/components/shared/attachments";
 import { RecordPage } from "@/components/shared/record-page";
 import { StatusBadge } from "@/components/shared/status-badge";
-import { Alert, Card, CardTitle } from "@/components/ui";
-import { requireUser } from "@/lib/auth";
+import { Alert, Card, CardTitle, Table, Td, Th } from "@/components/ui";
+import { can, getAccess, requireUser } from "@/lib/auth";
 import { formatMoney } from "@/lib/money";
 import { createClient } from "@/lib/supabase/server";
 import { formatDate } from "@/lib/utils";
@@ -25,6 +26,7 @@ interface Pcr {
   requested_by: string;
   department_id: string | null;
   created_at: string;
+  released_at: string | null;
   departments: { name: string } | null;
 }
 
@@ -49,6 +51,12 @@ export default async function PettyCashPage({
   const mine = p.requested_by === me.id;
   const editable = mine && (p.status === "draft" || p.status === "returned");
   const names = await peopleNames([p.requested_by]);
+  const access = await getAccess();
+  const { data: rec } = p.released_at
+    ? await supabase.from("expense_receipts").select("id, receipt_date, vendor_name, receipt_no, amount, vat_amount, description, scan_id, accounts(name)").eq("petty_cash_request_id", id).order("receipt_date")
+    : { data: [] };
+  const receipts = (rec as unknown as { id: string; receipt_date: string; vendor_name: string; receipt_no: string; amount: string; vat_amount: string; description: string; scan_id: string | null; accounts: { name: string } | null }[] | null) ?? [];
+  const liquidated = receipts.reduce((s, r) => s + Number(r.amount), 0);
 
   return (
     <RecordPage
@@ -113,6 +121,32 @@ export default async function PettyCashPage({
             )}
           </Card>
           <Attachments table="petty_cash_requests" id={p.id} canAdd={mine && ["draft", "returned", "submitted"].includes(p.status)} userId={me.id} />
+          {p.released_at && (
+            <Card className="lg:col-span-3">
+              <CardTitle>Liquidation: receipts {formatMoney(liquidated.toFixed(2))} of {formatMoney(p.amount)}</CardTitle>
+              {receipts.length > 0 ? (
+                <Table>
+                  <thead><tr><Th>Date</Th><Th>Store</Th><Th>OR no.</Th><Th>For</Th><Th className="text-right">VAT</Th><Th className="text-right">Amount</Th></tr></thead>
+                  <tbody>
+                    {receipts.map((r) => (
+                      <tr key={r.id}>
+                        <Td>{formatDate(r.receipt_date)}</Td>
+                        <Td>{r.vendor_name}{r.scan_id && <Link href={`/scan/${r.scan_id}`} className="ml-1 text-xs underline">photo</Link>}</Td>
+                        <Td>{r.receipt_no || "—"}</Td>
+                        <Td>{r.accounts?.name}{r.description ? ` · ${r.description}` : ""}</Td>
+                        <Td className="text-right tabular-nums">{formatMoney(r.vat_amount)}</Td>
+                        <Td className="text-right tabular-nums">{formatMoney(r.amount)}</Td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </Table>
+              ) : <p className="text-sm text-muted-foreground">No receipts yet.</p>}
+              <p className="mt-2 text-sm">
+                {Number(p.amount) - liquidated > 0.004 ? <>Still to liquidate or return: <b>{formatMoney((Number(p.amount) - liquidated).toFixed(2))}</b>. </> : <span className="text-success">Fully liquidated. </span>}
+                {(mine || can(access, "accounting.journals.create")) && Number(p.amount) - liquidated > 0.004 && <Link href="/scan?kind=expense_receipt" className="font-medium text-brand underline">Scan a receipt</Link>}
+              </p>
+            </Card>
+          )}
         </div>
       )}
       {tab === "approvals" && <ApprovalTimeline docType="petty_cash" recordId={p.id} />}

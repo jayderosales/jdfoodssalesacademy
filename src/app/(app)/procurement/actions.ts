@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { requirePermission, requireUser } from "@/lib/auth";
+import { parseMoney } from "@/lib/money";
 import { createClient } from "@/lib/supabase/server";
 
 export type FormState = { error?: string; message?: string };
@@ -67,7 +68,13 @@ export async function createSupplier(_: FormState, form: FormData): Promise<Form
 export async function updateSupplier(_: FormState, form: FormData): Promise<FormState> {
   await requirePermission("procurement.suppliers.manage");
   const id = uuid.parse(form.get("id"));
-  const v = SupplierSchema.extend({ status: z.enum(["pending", "approved", "blocked"]), status_note: text(300) }).safeParse(Object.fromEntries(form));
+  const optional = (s: z.ZodTypeAny) => z.preprocess((x) => (x == null || x === "" ? undefined : x), s.optional());
+  const v = SupplierSchema.extend({
+    status: z.enum(["pending", "approved", "blocked"]),
+    status_note: text(300),
+    ewt_rate: optional(z.coerce.number({ message: "Withholding tax: enter a percentage." }).min(0).max(15, "Withholding tax can't be more than 15%.")),
+    opening_balance: optional(z.preprocess((x) => parseMoney(String(x)), z.string({ message: "Opening balance: enter an amount." }))),
+  }).safeParse(Object.fromEntries(form));
   if (!v.success) return { error: v.error.issues[0].message };
   const supabase = await createClient();
   const { error } = await supabase.from("suppliers").update(v.data).eq("id", id);

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ScanLink } from "@/components/shared/scan-original";
 import { Card, PageHeader, Table, Td, Th } from "@/components/ui";
 import { requirePermission } from "@/lib/auth";
 import { formatMoney } from "@/lib/money";
@@ -23,7 +24,7 @@ export default async function InvoicesPage({ searchParams }: { searchParams: Pro
 
   return (
     <>
-      <PageHeader title="Supplier invoices" description="Record the supplier's invoice from its PO page (Received items → Record supplier invoice). Then match it against the PO and what was received." />
+      <PageHeader title="Supplier invoices" description="Record the supplier's invoice from its PO page (Received items → Record supplier invoice). Then match it against the PO and what was received. Bills without a PO (rent, utilities, services) can be photographed." actions={<ScanLink kind="supplier_bill" label="Scan a supplier bill" />} />
       <Card>
         <div className="mb-3 flex gap-2 text-sm">
           {tabs.map(([k, l]) => <Link key={k} href={k ? `/procurement/invoices?f=${k}` : "/procurement/invoices"} className={`rounded-full border px-3 py-1 ${(sp.f ?? "") === k ? "border-brand bg-brand text-white" : "hover:bg-muted"}`}>{l}</Link>)}

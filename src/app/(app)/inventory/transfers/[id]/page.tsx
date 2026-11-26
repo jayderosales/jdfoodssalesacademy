@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { ActionForm } from "@/components/action-form";
 import { RecordHistory } from "@/components/record-history";
 import { RecordPage } from "@/components/shared/record-page";
+import { ScanOriginal } from "@/components/shared/scan-original";
 import { Alert, Badge, Card, CardTitle, Field, Input, Table, Td, Th } from "@/components/ui";
 import { can, getAccess, requirePermission } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
@@ -113,6 +114,7 @@ export default async function TransferPage({ params, searchParams }: { params: P
           )}
         </div>
       )}
+      {tab !== "history" && <div className="mt-4 max-w-md"><ScanOriginal table="stock_transfers" id={t.id} /></div>}
       {tab === "history" && <RecordHistory tables={["stock_transfers", "stock_transfer_lines"]} recordIds={[t.id, ...rows.map((l) => l.id)]} />}
     </RecordPage>
   );

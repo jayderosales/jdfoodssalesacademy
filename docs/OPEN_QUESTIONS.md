@@ -28,6 +28,21 @@ Answer inline under each question (or in chat). Answered questions move to the b
 - **Supplier list.** Send the current supplier list (name, TIN, VAT status, terms, items they supply, prices) and I'll prepare an import.
 - **Who is the buyer?** The operations manager and COO can create POs. Tell me if someone else (e.g. a purchasing officer) should.
 
+## Phase 5 (accounting): needed before the accounting cut-off
+
+- **Accountant review** of the seeded chart of accounts, VAT treatment (zero-rated/exempt items, invoice wording) and EWT rates (BIR 2307).
+- **Cut-off date** for opening balances, after the parallel run (a month start, ideally January 1).
+- **Opening balances** from the Excel books on that date: trial balance, customer balances (AR), supplier balances (AP), inventory count and value, bank balances.
+- **Bank and e-wallet accounts** in use (bank name, last 4 digits only, purpose).
+- **Withholding tax rates per supplier** (e.g. 1% goods, 2% services, needs verification). Every supplier starts at 0%, so nothing is withheld until a rate is set on the supplier.
+- **Supplier opening balances** show in AP aging but can't be paid through a supplier payment yet (payments settle invoices). Until then, enter old unpaid bills as supplier invoices without a PO, or pay them with a manual journal.
+- **VAT on sales:** prices are treated as VAT-inclusive (setting). Confirm, and say whether any items are VAT-exempt or zero-rated (all are taxed at 12% today).
+
+## Scan a document
+- **AI key in Vercel:** reading photos needs `ANTHROPIC_API_KEY` set in Vercel (Production). Until then scans open an empty form to type in.
+- **Transmittal forms:** send a photo of the current transmittal / delivery slip formats so the reading can be checked against real examples.
+- **Petty cash returns:** unspent petty cash returned in cash isn't recorded yet (liquidation shows the balance left). Confirm how returns are handled today.
+
 ## Other open items (not blocking Phase 1)
 
 - **Supabase Auth settings to turn on** (dashboard → Authentication): leaked-password protection (advisor warning); session inactivity timeout / time-box (Pro plan). TOTP MFA is on by default.
@@ -40,6 +55,13 @@ Answer inline under each question (or in chat). Answered questions move to the b
 - Privacy notice text (Data Privacy Act) and DPO contact — still a placeholder from the Academy.
 
 ## Answered
+
+**2026-11-26 — Phase 5 (accounting) questions**
+
+1. JD Foods is **VAT-registered**.
+2. Books are kept in **Excel / manually** today, so JD Foods OS becomes the book of record.
+3. Go-live (opening-balance cut-off) **later, after a parallel test run**.
+4. The **CEO approves all supplier payments**.
 
 **2026-11-26 — Phase 4 (procurement) questions**
 

@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { ActionForm } from "@/components/action-form";
 import { RecordHistory } from "@/components/record-history";
 import { RecordPage } from "@/components/shared/record-page";
+import { ScanOriginal } from "@/components/shared/scan-original";
 import { StatusBadge } from "@/components/shared/status-badge";
 import { Card, CardTitle, Field, Input, Select, Table, Td, Th } from "@/components/ui";
 import { can, getAccess, requirePermission } from "@/lib/auth";
@@ -102,6 +103,7 @@ export default async function ReceiptPage({ params, searchParams }: { params: Pr
           )}
         </div>
       )}
+      {tab !== "history" && <div className="mt-4 max-w-md"><ScanOriginal table="stock_receipts" id={r.id} /></div>}
       {tab === "history" && <RecordHistory tables={["stock_receipts", "stock_receipt_lines"]} recordIds={[r.id, ...rows.map((l) => l.id)]} />}
     </RecordPage>
   );

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ActionForm } from "@/components/action-form";
+import { ScanLink } from "@/components/shared/scan-original";
 import { Badge, Card, CardTitle, Field, Input, PageHeader, Select, Table, Td, Th } from "@/components/ui";
 import { requirePermission } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
@@ -23,7 +24,7 @@ export default async function TransfersPage() {
   const rows = (data as unknown as { id: string; number: string; status: string; created_at: string; dispatched_at: string | null; received_at: string | null; from: { name: string } | null; to: { name: string } | null }[] | null) ?? [];
   return (
     <>
-      <PageHeader title="Transfers" description="Moving stock between locations in two steps: dispatch, then receive." />
+      <PageHeader title="Transfers" description="Moving stock between locations in two steps: dispatch, then receive." actions={<ScanLink kind="stock_transfer" label="Scan a transmittal slip" />} />
       <div className="grid gap-4 lg:grid-cols-3">
         <Card className="lg:col-span-2">
           <Table>

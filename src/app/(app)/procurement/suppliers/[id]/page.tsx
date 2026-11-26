@@ -21,7 +21,7 @@ export default async function SupplierPage({ params }: { params: Promise<{ id: s
   const supabase = await createClient();
   const { data } = await supabase.from("suppliers").select("*").eq("id", id).maybeSingle();
   if (!data) notFound();
-  const s = data as { id: string; code: string; name: string; tin: string; vat_registered: boolean; payment_terms_days: number; address: string; mobile: string; email: string; category: string; status: string; status_note: string; notes: string };
+  const s = data as { id: string; code: string; name: string; tin: string; vat_registered: boolean; payment_terms_days: number; address: string; mobile: string; email: string; category: string; status: string; status_note: string; notes: string; ewt_rate?: string; opening_balance?: string };
   const canEdit = can(access, "procurement.suppliers.manage");
   const seeBank = can(access, "procurement.view_bank");
   const [{ data: contacts }, { data: prices }, { data: pos }, { data: perf }, bank, units] = await Promise.all([
@@ -113,6 +113,8 @@ export default async function SupplierPage({ params }: { params: Promise<{ id: s
                 <Field label="TIN" htmlFor="tin"><Input id="tin" name="tin" defaultValue={s.tin} /></Field>
                 <label className="flex items-center gap-2 text-sm"><input type="checkbox" name="vat_registered" defaultChecked={s.vat_registered} /> VAT-registered</label>
                 <Field label="Payment terms (days)" htmlFor="payment_terms_days"><Input id="payment_terms_days" name="payment_terms_days" type="number" min={0} max={180} defaultValue={s.payment_terms_days} /></Field>
+                <Field label="Withholding tax % (EWT)" htmlFor="ewt_rate" hint="Withheld from each payment, e.g. 1 for goods, 2 for services. Ask the accountant."><Input id="ewt_rate" name="ewt_rate" type="number" min={0} max={15} step="0.01" defaultValue={Number(s.ewt_rate ?? 0)} /></Field>
+                <Field label="Opening balance (unpaid before go-live)" htmlFor="opening_balance"><Input id="opening_balance" name="opening_balance" inputMode="decimal" defaultValue={Number(s.opening_balance ?? 0).toFixed(2)} /></Field>
                 <Field label="Mobile" htmlFor="mobile"><Input id="mobile" name="mobile" defaultValue={s.mobile} /></Field>
                 <Field label="Email" htmlFor="email"><Input id="email" name="email" type="email" defaultValue={s.email} /></Field>
                 <Field label="Address" htmlFor="address"><Textarea id="address" name="address" rows={2} defaultValue={s.address} /></Field>

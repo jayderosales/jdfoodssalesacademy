@@ -1,5 +1,27 @@
 # Changelog
 
+## 2026-11-26 — Scan a document (photo encoding)
+- **Take a photo, check, save.** New **Scan a document** page (sidebar, and buttons on Receipts, Transfers, Supplier invoices, Payments and petty cash). The AI reads the photo or PDF into a form next to the picture. Every field can be corrected, names are matched to products, suppliers, customers and locations, and nothing is saved until a person confirms. A scan never posts, approves or moves stock by itself.
+- **Inventory:** a *supplier delivery slip* becomes a receipt against its PO (quantities, lots and expiry prefilled; lots go to QA quarantine) or a draft stock receipt when there's no PO. *Goods sent between sites* becomes a draft transfer that picks released stock earliest-expiry first (or the lot on the slip).
+- **Accounting:** a *supplier bill* becomes a draft supplier invoice (with its PO, or as an expense bill that goes to the CEO). An *expense receipt* liquidates a released petty cash request, or becomes a draft journal (expense + input VAT / cash) when paid from a company account. A *customer payment slip* becomes a pending payment for finance to confirm.
+- **Document transmittals** (new): list the invoices, ORs, cheques and other papers sent to accounting (scan or type). Accounting ticks each one off when it arrives. The sender can't receive their own transmittal.
+- **Petty cash liquidation:** released requests show their receipts against the amount and what's left to liquidate or return. The same official receipt (store + OR no.) can't be claimed twice.
+- Records made from a scan show the **scanned original**. Everyone signed in can now see the names of expense accounts (for liquidations), but no balances.
+- Reading photos needs `ANTHROPIC_API_KEY` in Vercel. Without it, the scan is saved and the form opens empty to type in.
+- 313 unit/DB tests (5 new scan/transmittal/expense DB tests, 4 matching unit tests). Migration 20261207000001 applied to Supabase.
+
+## 2026-11-26 — Phase 5a: accounting core
+- **The books post themselves.** Sales post at *Ready for pickup* (receivables, sales by brand and channel, output VAT). Confirmed customer payments, stock movements (cost of goods sold, losses, samples, gains) and cost revaluations post too. So do matched supplier invoices (goods received not invoiced, price variance, input VAT, payables), paid supplier payments and released petty cash. Returns and voids reverse the original entry.
+- **Parallel run:** every entry is marked *test* until the finance head starts the official books (Periods & setup). Starting deletes the test entries and opening balances are pasted from the Excel trial balance.
+- **Chart of accounts:** a starting Philippine chart (57 accounts, accountant to review), payment method → bank account mapping. Accounts used by automatic postings can't be repurposed, and no account can be deleted.
+- **Journals and ledger:** manual entries go to the CEO and post on approval, posted entries are locked (reversal only), and journals must balance (DB). The ledger has running balances and every line links to its journal and source document.
+- **Periods:** close, reopen, lock. Nothing posts into a closed or locked month. A month can't close while events are unposted or manual journals are pending. **Unposted queue** with the reason and Retry.
+- **Receivables and payables aging** (not yet due, 1–30, 31–60, 61–90, 90+), drill to each order or invoice.
+- **Supplier payments:** pick a supplier and every ready invoice is added. Withholding tax is calculated at the supplier's rate on the net-of-VAT amount. The CEO approves, then finance marks it paid with the bank reference and attaches proof. Can't pay more than is open.
+- **Banks:** balances, statement import (paste CSV), auto-match (same amount within 3 days), manual match/unmatch, lists of what's unmatched on each side. **Petty cash release** posts the expense.
+- **Reports:** profit and loss, balance sheet, trial balance (all with "official only" switch), monthly VAT (output − input), withholding tax for BIR 2307. Every number links to the ledger.
+- 304 unit/DB tests (16 accounting DB tests, aging unit tests). Migrations 20261206000001–02 applied to Supabase.
+
 ## 2026-11-26 — Phase 4: procurement
 - **Suppliers**: accreditation (pending → approved → blocked with a reason), contacts, documents (BIR 2303, FDA LTO, quotes), payment terms, VAT status, and **bank details visible to finance only** (every view logged). Supplier price list per item and unit, with MOQ, lead time and last price paid.
 - **Purchase requests**: any staff member asks for items; the buyer orders them or declines with a reason. Inventory → Reorder has a "Create purchase request" button for everything below its minimum.

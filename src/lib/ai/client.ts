@@ -7,6 +7,7 @@ export const MODELS = {
   customer: process.env.AI_MODEL_CUSTOMER || "claude-opus-5-5",
   grader: process.env.AI_MODEL_GRADER || "claude-opus-5-5",
   quiz: process.env.AI_MODEL_QUIZ || "claude-opus-5-5",
+  document: process.env.AI_MODEL_DOCUMENT || "claude-opus-5-5",
 } as const;
 
 /** USD per 1M tokens (input, output). Used for the cost dashboard; update if pricing changes. */
@@ -34,7 +35,7 @@ export function anthropic(): Anthropic {
 
 export class AiUnavailableError extends Error {}
 
-export type AiFeature = "roleplay_customer" | "roleplay_grade" | "quiz_grade" | "quiz_generate";
+export type AiFeature = "roleplay_customer" | "roleplay_grade" | "quiz_grade" | "quiz_generate" | "document_scan";
 
 /** Records token usage + estimated cost for the owner's AI cost report. Never throws. */
 export async function logAiUsage(entry: {

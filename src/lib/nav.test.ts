@@ -9,7 +9,7 @@ const hrefs = (perms: string[], role: "owner" | "manager" | "rep" | null = null)
 describe("buildNav", () => {
   it("shows Training as one sidebar item, with the rep's pages as tabs", () => {
     const n = hrefs(["org.view", "academy.learn"], "rep");
-    expect(n.all).toEqual(["/dashboard", "/learn"]);
+    expect(n.all).toEqual(["/dashboard", "/scan", "/accounting/transmittals", "/learn"]);
     const { sections } = buildNav(new Set(["org.view", "academy.learn"]), "rep");
     const training = sections[0].items.find((i) => i.label === "Training");
     expect(training?.match).toEqual(["/learn", "/quizzes", "/roleplay"]);
@@ -23,7 +23,7 @@ describe("buildNav", () => {
   });
   it("shows a warehouse person no training pages", () => {
     const n = hrefs(["org.view"]);
-    expect(n.all).toEqual(["/dashboard"]);
+    expect(n.all).toEqual(["/dashboard", "/scan", "/accounting/transmittals"]); // everyone can scan and send transmittals
     expect(n.mobile).toContain("/account");
   });
   it("shows an auditor the audit log and users but no settings", () => {

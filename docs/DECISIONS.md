@@ -82,3 +82,19 @@ Format: date — decision — why — alternatives considered.
 - **Decision:** Procurement is built inside JD Foods OS. Every PO needs CEO approval. Purchase requests (no approval) → PO (approval) → receipt against the PO through the stock ledger → supplier invoice with 3-way match. Pesos only; no landed cost yet.
 - **Why:** Reuses the stock ledger, QA gate, costing and approval engine; avoids syncing products and stock with a second system. The owner confirmed CEO approval and local-only suppliers.
 - **Alternatives:** Odoo/ERPNext (duplicate master data and stock); tiered PO limits (kept as an inactive template).
+
+## 2026-11-26 — Phase 5: JD Foods OS becomes the book of record, parallel run first
+- **Decision:** Build accounting (5a) as the official books: chart of accounts, automatic postings from every module, AR, AP with CEO-approved supplier payments, banks, petty cash, reports. JD Foods is VAT-registered (12%, setting needs verification). Run it in parallel with the Excel books and pick the opening-balance cut-off afterwards; test postings are wiped at go-live.
+- **Why:** The books are in Excel today, so there's no other system to sync with. A parallel run lets the owner and accountant compare before relying on it.
+- **Alternatives:** Export to outside accounting software (not used today); go live on a fixed date now (risky without a test run).
+
+## 2026-11-26 — Phase 5a: how the posting engine and the books behave
+- **Decision:** Postings happen in the same transaction as the business event (trigger on the event outbox). If a posting fails (e.g. a missing account), the business action still goes through and the event waits in an **unposted queue** with the reason, to be fixed and retried; a month can't be closed while anything up to it is unposted. Sales post at *Ready for pickup* (AR / sales by brand / output VAT), stock movements post at moving-average cost, supplier invoices post when matched or approved (GRNI + price variance + input VAT / AP), supplier payments when marked paid (AP / bank / EWT payable). Manual journals and supplier payments go to the CEO. Accounts the engine uses can be renamed but not repurposed or deactivated (DB guard), and no account can be deleted.
+- **Why:** The ledger can never drift from the documents, and an accounting setup problem never stops a sale or a delivery.
+- **Alternatives:** A nightly batch posting (books lag behind the documents); blocking the business action when posting fails (a missing account would stop sales).
+
+## 2026-11-26 — Photo encoding: AI reads, a person saves
+- **Decision:** One shared "Scan a document" flow for six paper documents (supplier delivery slip, goods sent between sites, documents sent to accounting, supplier bill, expense receipt, customer payment slip). Claude reads the photo into a structured draft (every field optional, "" when unreadable). The server matches names to master data, and a person reviews it next to the photo and creates the same draft record they'd make by hand, through the same database rules. The photo stays on the scan, and each record links back to it.
+- **Why:** CLAUDE.md §5.12 (AI proposes, humans approve). Reusing the normal drafts means approvals, QA quarantine, 3-way match and payment confirmation all still apply.
+- **Also:** Expense receipts either liquidate released petty cash (already posted at release, so no second entry) or become a draft manual journal for the CEO. Duplicate receipts (same store + OR no.) are blocked in the database. Document transmittals must be received by someone other than the sender.
+- **Alternatives:** Auto-saving what the AI reads (no human check, against §5.12); a separate OCR service (another vendor; Claude already approved and reads handwriting/Taglish).

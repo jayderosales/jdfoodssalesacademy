@@ -38,6 +38,8 @@ export const MODULES: ModuleEntry[] = [
   { section: "", href: "/dashboard", label: "Home", icon: "home", mobile: 1 },
   { section: "", href: "/approvals", label: "Approvals", icon: "approve", perm: ["petty_cash.request", "approvals.view_all", "readonly.all"], mobile: 3 },
   { section: "", href: "/requests/petty-cash", label: "Petty cash", icon: "wallet", perm: ["petty_cash.request", "petty_cash.view_all", "readonly.all"] },
+  { section: "", href: "/scan", label: "Scan a document", icon: "scan", match: ["/scan"] },
+  { section: "", href: "/accounting/transmittals", label: "Transmittals", icon: "clipboard" },
 
   { section: "Training", href: "/learn", label: "Learn", icon: "book", perm: ["academy.learn", "academy.team.manage"], mobile: 2 },
   { section: "Training", href: "/quizzes", label: "Quizzes", icon: "quiz", perm: ["academy.learn"], mobile: 4 },
@@ -76,6 +78,16 @@ export const MODULES: ModuleEntry[] = [
   { section: "Procurement", href: "/procurement/suppliers", label: "Suppliers", icon: "org", perm: ["procurement.view", "procurement.suppliers.manage"] },
   { section: "Procurement", href: "/procurement/invoices", label: "Supplier invoices", icon: "receipt", perm: ["procurement.invoices.manage", "procurement.view"] },
 
+  { section: "Accounting", href: "/accounting", label: "Overview", icon: "gauge", perm: ["accounting.view", "finance.reports.view"] },
+  { section: "Accounting", href: "/accounting/reports", label: "Reports", icon: "chart", perm: ["finance.reports.view"] },
+  { section: "Accounting", href: "/accounting/receivables", label: "Receivables", icon: "users", perm: ["ar.manage", "accounting.view"] },
+  { section: "Accounting", href: "/accounting/payables", label: "Payables", icon: "wallet", perm: ["ap.payments.create", "accounting.view"] },
+  { section: "Accounting", href: "/accounting/banks", label: "Banks", icon: "layers", perm: ["bank.reconcile", "accounting.view"] },
+  { section: "Accounting", href: "/accounting/journals", label: "Journals", icon: "clipboard", perm: ["accounting.view", "accounting.journals.create"] },
+  { section: "Accounting", href: "/accounting/ledger", label: "Ledger", icon: "receipt", perm: ["accounting.view"] },
+  { section: "Accounting", href: "/accounting/accounts", label: "Chart of accounts", icon: "sliders", perm: ["accounting.view", "accounting.coa.manage"] },
+  { section: "Accounting", href: "/accounting/periods", label: "Periods & setup", icon: "settings", perm: ["accounting.periods.manage", "accounting.view"] },
+
   { section: "Administration", href: "/admin/users", label: "Users", icon: "users", perm: ["admin.users.view"], mobile: 7 },
   { section: "Administration", href: "/admin/roles", label: "Roles & permissions", icon: "key", perm: ["admin.roles.manage", "admin.users.view"] },
   // Everyone internal can READ the directory (org.view), but only people who look after it get the menu item.
@@ -89,7 +101,6 @@ export const MODULES: ModuleEntry[] = [
 
 /** Modules planned in docs/MODULES.md, shown as "coming soon" to administrators only. */
 export const UPCOMING_MODULES = [
-  { slug: "accounting", label: "Accounting & finance", phase: "5" },
   { slug: "command-center", label: "CEO Command Center", phase: "6" },
 ];
 
@@ -114,6 +125,7 @@ export const GROUPED: Record<string, { label: string; icon: IconName }> = {
   Inventory: { label: "Inventory", icon: "box" },
   Sales: { label: "Sales", icon: "cart" },
   Procurement: { label: "Procurement", icon: "truck" },
+  Accounting: { label: "Accounting", icon: "wallet" },
 };
 
 export function buildNav(perms: ReadonlySet<string>, academyRole: UserRole | null): { sections: NavSection[]; mobile: NavItem[] } {

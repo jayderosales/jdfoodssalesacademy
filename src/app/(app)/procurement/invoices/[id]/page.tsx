@@ -4,6 +4,7 @@ import { ActionForm } from "@/components/action-form";
 import { RecordHistory } from "@/components/record-history";
 import { ApprovalTimeline } from "@/components/shared/approval-timeline";
 import { Attachments } from "@/components/shared/attachments";
+import { ScanOriginal } from "@/components/shared/scan-original";
 import { Card, CardTitle, Field, Input, PageHeader, Table, Td, Th } from "@/components/ui";
 import { can, getAccess, requireUser } from "@/lib/auth";
 import { formatMoney } from "@/lib/money";
@@ -96,6 +97,7 @@ export default async function InvoicePage({ params }: { params: Promise<{ id: st
           <Card><CardTitle>History</CardTitle><RecordHistory tables={["supplier_invoices"]} recordIds={[id]} /></Card>
         </div>
         <div className="space-y-4">
+          <ScanOriginal table="supplier_invoices" id={id} />
           {can(access, "procurement.invoices.manage") && (
             <Card>
               <CardTitle>Next step</CardTitle>
@@ -109,7 +111,7 @@ export default async function InvoicePage({ params }: { params: Promise<{ id: st
                 {inv.status === "variance" && (
                   <ActionForm action={invoiceAction} submitLabel="Send variance to CEO" variant="outline"><input type="hidden" name="id" value={id} /><input type="hidden" name="step" value="variance" /></ActionForm>
                 )}
-                {["matched", "approved"].includes(inv.status) && <p className="text-success">Ready to pay (accounts payable comes with Phase 5).</p>}
+                {["matched", "approved"].includes(inv.status) && <p className="text-success">Ready to pay. Accounting pays it from <Link href="/accounting/payables" className="underline">Payables</Link>.</p>}
                 {inv.status === "submitted" && <p>Waiting for the CEO to accept the variance.</p>}
                 {!["submitted", "void"].includes(inv.status) && (
                   <details className="rounded-lg border p-2"><summary className="cursor-pointer font-medium">Void invoice</summary>

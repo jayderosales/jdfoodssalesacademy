@@ -55,6 +55,15 @@ export const PERMISSIONS = {
   "procurement.po.create": { module: "procurement", restricted: false },
   "procurement.invoices.manage": { module: "procurement", restricted: false },
   "procurement.view_bank": { module: "procurement", restricted: true },
+  "accounting.view": { module: "accounting", restricted: false },
+  "accounting.journals.create": { module: "accounting", restricted: false },
+  "accounting.periods.manage": { module: "accounting", restricted: false },
+  "accounting.coa.manage": { module: "accounting", restricted: false },
+  "ap.payments.create": { module: "accounting", restricted: false },
+  "ar.manage": { module: "accounting", restricted: false },
+  "bank.reconcile": { module: "accounting", restricted: false },
+  "finance.reports.view": { module: "accounting", restricted: false },
+  "transmittals.receive": { module: "accounting", restricted: false },
 } as const satisfies Record<string, { module: string; restricted: boolean }>;
 
 export type Permission = keyof typeof PERMISSIONS;
@@ -72,6 +81,7 @@ export const MODULE_LABELS: Record<string, string> = {
   inventory: "Inventory & warehouse",
   sales: "Sales, CRM & shop",
   procurement: "Procurement",
+  accounting: "Accounting & finance",
 };
 
 /** Built-in role codes (public.roles where is_system). */

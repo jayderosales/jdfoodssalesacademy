@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ActionForm } from "@/components/action-form";
+import { ScanLink } from "@/components/shared/scan-original";
 import { StatusBadge } from "@/components/shared/status-badge";
 import { Card, CardTitle, Field, Input, PageHeader, Select, Table, Td, Th } from "@/components/ui";
 import { can, getAccess, requirePermission } from "@/lib/auth";
@@ -31,7 +32,7 @@ export default async function PaymentsPage() {
 
   return (
     <>
-      <PageHeader title="Payments" description="Payments count only after finance confirms them. Whoever records a payment can't confirm it." />
+      <PageHeader title="Payments" description="Payments count only after finance confirms them. Whoever records a payment can't confirm it." actions={<ScanLink kind="payment_slip" label="Scan a payment slip" />} />
       <div className="grid gap-4 lg:grid-cols-3">
         <div className="space-y-4 lg:col-span-2">
           <Card>

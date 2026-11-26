@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ActionForm } from "@/components/action-form";
+import { ScanLink } from "@/components/shared/scan-original";
 import { StatusBadge } from "@/components/shared/status-badge";
 import { Card, CardTitle, Field, Input, PageHeader, Select, Table, Td, Th } from "@/components/ui";
 import { requirePermission } from "@/lib/auth";
@@ -18,7 +19,7 @@ export default async function ReceiptsPage() {
   const rows = (data as unknown as { id: string; number: string; supplier_name: string; reference: string; received_on: string; status: string; locations: { name: string } | null }[] | null) ?? [];
   return (
     <>
-      <PageHeader title="Receipts" description="Stock coming in (purchase-order receiving arrives with Procurement in Phase 4)." />
+      <PageHeader title="Receipts" description="Stock coming in. Receive against a PO from its page, or photograph the supplier's delivery slip." actions={<ScanLink kind="delivery_receipt" label="Scan a delivery slip" />} />
       <div className="grid gap-4 lg:grid-cols-3">
         <Card className="lg:col-span-2">
           <Table>
