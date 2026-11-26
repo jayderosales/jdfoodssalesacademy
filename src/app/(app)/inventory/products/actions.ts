@@ -38,6 +38,8 @@ const productSchema = z.object({
   lead_time_days: optionalInt(365),
   active: checkbox,
   notes: z.string().trim().max(1000).default(""),
+  description: z.string().trim().max(2000).default(""),
+  image_url: z.union([z.literal(""), z.string().trim().url("The photo link must start with https://").startsWith("https://", "The photo link must start with https://")]).default(""),
 });
 
 function friendly(msg: string) {

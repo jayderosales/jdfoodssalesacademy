@@ -15,6 +15,26 @@ const STATUS: Record<string, { label: string; tone: Tone }> = {
   active: { label: "Active", tone: "success" },
   inactive: { label: "Inactive", tone: "neutral" },
   on_leave: { label: "On leave", tone: "warning" },
+  // sales orders
+  credit_review: { label: "Credit review", tone: "warning" },
+  awaiting_payment: { label: "Waiting for payment", tone: "warning" },
+  confirmed: { label: "Paid / released", tone: "brand" },
+  packing: { label: "Packing", tone: "brand" },
+  ready_for_pickup: { label: "Ready for pickup", tone: "success" },
+  dispatched: { label: "With courier", tone: "success" },
+  delivered: { label: "Delivered", tone: "success" },
+  issued: { label: "Issued", tone: "success" },
+  void: { label: "Void", tone: "neutral" },
+  spoiled: { label: "Spoiled", tone: "neutral" },
+  used_up: { label: "Used up", tone: "neutral" },
+  // leads
+  new: { label: "New", tone: "brand" },
+  contacted: { label: "Contacted", tone: "neutral" },
+  qualified: { label: "Qualified", tone: "brand" },
+  proposal: { label: "Proposal", tone: "warning" },
+  negotiation: { label: "Negotiation", tone: "warning" },
+  won: { label: "Won", tone: "success" },
+  lost: { label: "Lost", tone: "danger" },
 };
 
 export function statusLabel(status: string) {

@@ -3,7 +3,8 @@ import { createServerClient } from "@supabase/ssr";
 import { IDLE_LIMIT_COOKIE, LAST_SEEN_COOKIE, serverSessionExpired } from "@/lib/idle";
 
 // /demo is the sample-data preview; its layout returns 404 in production unless ENABLE_DEMO=1.
-const PUBLIC_PATHS = ["/login", "/auth", "/prehire", "/demo", "/join", "/register", "/offline"];
+// /shop and the landing page (/) are the public storefront; /api/paymongo receives the payment provider's webhook.
+const PUBLIC_PATHS = ["/login", "/auth", "/prehire", "/demo", "/join", "/register", "/offline", "/shop", "/api/paymongo"];
 
 /**
  * Refreshes the Supabase session cookie, sends signed-out visitors to /login, and signs out sessions that have been
@@ -30,7 +31,7 @@ export async function middleware(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  const isPublic = PUBLIC_PATHS.some((p) => path === p || path.startsWith(p + "/"));
+  const isPublic = path === "/" || PUBLIC_PATHS.some((p) => path === p || path.startsWith(p + "/"));
 
   if (user && !isPublic) {
     const now = Date.now();

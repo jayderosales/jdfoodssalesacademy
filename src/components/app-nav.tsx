@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   BarChart3, Bell, BookOpen, Building2, CheckSquare, ClipboardCheck, ClipboardList, Clock, FileText, FileUp, Gauge, Home, Inbox, KeyRound, Layers, Link2, ListChecks, MessageSquare, Package, ScanLine, SlidersHorizontal, Tag, Truck, Wallet,
-  Settings, ShieldCheck, User, Users, UsersRound, type LucideIcon,
+  Settings, ShieldCheck, ShoppingCart, Target, Receipt, MapPin, User, Users, UsersRound, type LucideIcon,
 } from "lucide-react";
 import type { IconName, NavItem, NavSection } from "@/lib/nav";
 import { cn } from "@/lib/utils";
@@ -14,6 +14,7 @@ const ICONS: Record<IconName, LucideIcon> = {
   team: UsersRound, review: ClipboardCheck, content: FileText, chart: BarChart3, settings: Settings, audit: ShieldCheck,
   org: Building2, key: KeyRound, link: Link2, soon: Clock, approve: CheckSquare, wallet: Wallet, bell: Bell, import: FileUp,
   box: Package, tag: Tag, layers: Layers, truck: Truck, inbox: Inbox, sliders: SlidersHorizontal, clipboard: ClipboardList, scan: ScanLine, gauge: Gauge,
+  cart: ShoppingCart, target: Target, receipt: Receipt, pin: MapPin,
 };
 
 export function SideNavSections({ sections }: { sections: NavSection[] }) {

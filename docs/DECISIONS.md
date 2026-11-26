@@ -71,3 +71,9 @@ Format: date — decision — why — alternatives considered.
 - **Pre-order items** (ThyChef 25 kg boxes) are normal SKUs flagged pre-order with a lead time; they can be sold without stock on hand.
 - **Locations**: Plaridel FG warehouse (sellable stock) and Plaridel production store (raw materials/packaging, not sellable). The courier pickup point is a flag on a location, not a stock location.
 - **SRP** is stored on the product for now (retail reference price); full price lists come in Phase 3.
+
+## 2026-11-26 — Phase 3: sales, shop and when stock is deducted
+- **Decision:** One order pipeline for every channel (shop, phone, Messenger, field, walk-in). Stock is **reserved** (FEFO) when an order is placed and **deducted** (`sale_dispatch`) only when staff mark it *Ready for pickup*, which the database allows only if the order is paid or approved on credit. Unpaid shop orders auto-cancel after 48 hours (setting).
+- **Why:** The owner asked that sales hit inventory once payment is confirmed and the goods are prepared. Reserving at placement stops the shop from selling stock already promised.
+- **Also:** Customers pay the courier directly (no shipping line on orders). Guest checkout is allowed. Manual payment confirmation now, PayMongo behind a switch. The new shop runs alongside Shopify until Phase 3c sync.
+- **Alternatives:** Deduct at payment (stock leaves the books before it's packed); deduct at delivery (stock looks available while it sits at the pickup point).

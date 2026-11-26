@@ -3,7 +3,7 @@ import { ActionForm } from "@/components/action-form";
 import { Card, CardTitle, Field, Input, PageHeader, Select, Textarea } from "@/components/ui";
 import { can, getAccess, getSettings, requirePermission } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
-import { saveBranding, saveCompany, savePrivacy, saveScoring, saveSecurity } from "./actions";
+import { saveBranding, saveCompany, savePrivacy, saveScoring, saveSecurity, saveShop } from "./actions";
 
 export const metadata = { title: "Settings" };
 
@@ -19,6 +19,7 @@ export default async function SettingsPage() {
     .order("created_at")
     .limit(1)
     .maybeSingle();
+  const shop = s as unknown as { shop_enabled?: boolean; paymongo_enabled?: boolean; unpaid_order_hours?: number; shop_payment_instructions?: string };
   const canBrand = can(access, ["admin.settings.manage", "academy.admin"]);
   const isAcademyAdmin = can(access, "academy.admin");
 
@@ -42,6 +43,19 @@ export default async function SettingsPage() {
         </nav>
       )}
       <div className="grid gap-4 lg:grid-cols-2">
+        {can(access, "admin.settings.manage") && (
+          <Card>
+            <CardTitle>Online shop</CardTitle>
+            <ActionForm action={saveShop} submitLabel="Save shop settings">
+              <label className="flex items-center gap-2 text-sm"><input type="checkbox" name="shop_enabled" defaultChecked={shop.shop_enabled ?? true} /> Shop is open (customers can place orders)</label>
+              <Field label="Payment instructions shown to customers" htmlFor="shop_payment_instructions" hint="Bank account, GCash and Maya numbers and account names. Customers see this on their order page.">
+                <Textarea id="shop_payment_instructions" name="shop_payment_instructions" rows={5} defaultValue={shop.shop_payment_instructions ?? ""} required />
+              </Field>
+              <Field label="Cancel unpaid shop orders after (hours)" htmlFor="unpaid_order_hours"><Input id="unpaid_order_hours" name="unpaid_order_hours" type="number" min={1} max={720} defaultValue={shop.unpaid_order_hours ?? 48} /></Field>
+              <label className="flex items-center gap-2 text-sm"><input type="checkbox" name="paymongo_enabled" defaultChecked={shop.paymongo_enabled ?? false} /> Offer online payment (PayMongo). Needs the PayMongo keys set in Vercel.</label>
+            </ActionForm>
+          </Card>
+        )}
         {can(access, "admin.settings.manage") && entity && (
           <Card>
             <CardTitle>Company profile</CardTitle>

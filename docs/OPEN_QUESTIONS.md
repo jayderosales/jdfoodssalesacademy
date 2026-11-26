@@ -13,6 +13,15 @@ Answer inline under each question (or in chat). Answered questions move to the b
 - **ThyChef Complete Sample Pack** lists sample sizes (20 g, 50 g, 30 g) that aren't separate SKUs. Are those packed from bulk at the time of sale, or kept as their own stock items?
 - **Location names.** I named them "Plaridel FG warehouse" and "Plaridel production store" after the price-list address. Rename if needed (Organization → Locations).
 
+## Phase 3 (sales and shop): needed before the shop goes live
+
+- **Payment details for the shop.** Bank account, GCash and Maya numbers and account names. Enter them in Settings → Online shop (the current text is a placeholder).
+- **Price lists.** Regular, corporate, distributor and reseller prices are empty, so everyone pays SRP until they're filled in (Sales → Price lists). Share the discount sheet if there is one.
+- **Product photos.** Add a photo link per product (Inventory → Products), or send the photos and I'll bulk-load them.
+- **PayMongo.** For online card/GCash/Maya payment: create a PayMongo business account, set PAYMONGO_SECRET_KEY and PAYMONGO_WEBHOOK_SECRET in Vercel yourself (I can't enter keys), then tick the box in Settings → Online shop.
+- **Customer logins in the shop.** A business customer who registers sees their prices only after an admin links their login to their customer record. The screen for that comes with the portal phase.
+- **Local development.** This PC's network intercepts HTTPS, so the local dev server can't reach Supabase ("unable to verify the first certificate"). Test on the Vercel site, or run Node with --use-system-ca.
+
 ## Other open items (not blocking Phase 1)
 
 - **Supabase Auth settings to turn on** (dashboard → Authentication): leaked-password protection (advisor warning); session inactivity timeout / time-box (Pro plan). TOTP MFA is on by default.
@@ -25,6 +34,13 @@ Answer inline under each question (or in chat). Answered questions move to the b
 - Privacy notice text (Data Privacy Act) and DPO contact — still a placeholder from the Academy.
 
 ## Answered
+
+**2026-11-26 — Phase 3 (sales and shop) questions**
+
+1. **Payment:** both: manual (bank transfer / GCash / Maya with proof, finance confirms) now, PayMongo when its account is set up.
+2. **Shopify:** the new shop runs alongside Shopify; order import and stock sync in Phase 3c.
+3. **Shipping:** the customer pays the courier directly; no shipping fee on orders.
+4. **Accounts:** guest checkout allowed; accounts optional.
 
 **2026-11-26 — Phase 2 questions**
 

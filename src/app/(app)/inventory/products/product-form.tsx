@@ -25,6 +25,8 @@ export interface ProductValues {
   lead_time_days?: number | null;
   active?: boolean;
   notes?: string;
+  description?: string;
+  image_url?: string;
 }
 type Opt = { id: string; name: string };
 
@@ -92,6 +94,8 @@ export function ProductForm({ p, brands, categories, units, readOnly }: { p?: Pr
           <label className="flex items-center gap-2"><input type="checkbox" name="active" defaultChecked={p?.active ?? true} className="size-4" /> Active</label>
         </div>
         <Field label="Notes" htmlFor="notes"><Textarea id="notes" name="notes" rows={2} defaultValue={p?.notes} /></Field>
+        <Field label="Shop description" htmlFor="description" hint="Shown to customers in the online shop."><Textarea id="description" name="description" rows={3} defaultValue={p?.description} /></Field>
+        <Field label="Photo link (https://…)" htmlFor="image_url" hint="Link to a product photo, e.g. from Shopify or Google Drive (public link)."><Input id="image_url" name="image_url" type="url" defaultValue={p?.image_url} placeholder="https://" /></Field>
       </fieldset>
       {state.error && <Alert tone="danger">{state.error}</Alert>}
       {state.message && <Alert tone="success">{state.message}</Alert>}

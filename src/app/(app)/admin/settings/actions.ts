@@ -123,3 +123,23 @@ export async function saveSecurity(_: FormState, form: FormData): Promise<FormSt
   revalidatePath("/admin/settings");
   return { message: "Security settings saved. New timeouts apply from each person's next sign-in." };
 }
+
+const shopSchema = z.object({
+  shop_enabled: z.preprocess((v) => v === "on", z.boolean()),
+  paymongo_enabled: z.preprocess((v) => v === "on", z.boolean()),
+  unpaid_order_hours: z.coerce.number().int().min(1, "At least 1 hour.").max(720),
+  shop_payment_instructions: z.string().trim().min(10, "Write the payment instructions customers will see.").max(2000),
+});
+
+/** Online shop: open/closed, payment instructions (bank / GCash / Maya details), unpaid-order auto-cancel. */
+export async function saveShop(_: FormState, form: FormData): Promise<FormState> {
+  await requirePermission("admin.settings.manage");
+  const parsed = shopSchema.safeParse(Object.fromEntries(form));
+  if (!parsed.success) return { error: parsed.error.issues[0].message };
+  const supabase = await createClient();
+  const { error } = await supabase.from("app_settings").update(parsed.data).eq("id", true);
+  if (error) return { error: error.message };
+  revalidatePath("/admin/settings");
+  revalidatePath("/shop");
+  return { message: "Shop settings saved." };
+}

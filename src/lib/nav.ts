@@ -4,7 +4,8 @@ import type { UserRole } from "@/lib/types";
 export type IconName =
   | "home" | "book" | "quiz" | "chat" | "user" | "users" | "team" | "review"
   | "content" | "chart" | "settings" | "audit" | "org" | "key" | "link" | "soon" | "approve" | "wallet" | "bell" | "import"
-  | "box" | "tag" | "layers" | "truck" | "inbox" | "sliders" | "clipboard" | "scan" | "gauge";
+  | "box" | "tag" | "layers" | "truck" | "inbox" | "sliders" | "clipboard" | "scan" | "gauge"
+  | "cart" | "target" | "receipt" | "pin";
 
 export interface NavItem {
   href: string;
@@ -59,21 +60,29 @@ export const MODULES: ModuleEntry[] = [
   { section: "Inventory", href: "/inventory/reorder", label: "Reorder", icon: "chart", perm: ["inventory.reorder.manage", "inventory.view_cost"] },
   { section: "Inventory", href: "/inventory/scan", label: "Scan", icon: "scan", perm: ["inventory.view"] },
 
+  { section: "Sales", href: "/sales", label: "Overview", icon: "gauge", perm: ["sales.view", "sales.fulfil", "sales.payments.confirm"], mobile: 2 },
+  { section: "Sales", href: "/sales/orders", label: "Orders", icon: "cart", perm: ["sales.view", "sales.orders.create"] },
+  { section: "Sales", href: "/sales/customers", label: "Customers", icon: "users", perm: ["sales.view", "sales.customers.manage"] },
+  { section: "Sales", href: "/sales/leads", label: "Leads", icon: "target", perm: ["sales.crm", "sales.view_all"] },
+  { section: "Sales", href: "/sales/activities", label: "Calls & visits", icon: "pin", perm: ["sales.crm", "sales.view_all"] },
+  { section: "Sales", href: "/sales/payments", label: "Payments", icon: "wallet", perm: ["sales.payments.record", "sales.payments.confirm"] },
+  { section: "Sales", href: "/sales/fulfilment", label: "Fulfilment", icon: "truck", perm: ["sales.fulfil"] },
+  { section: "Sales", href: "/sales/prices", label: "Price lists", icon: "tag", perm: ["sales.pricing.manage"] },
+  { section: "Sales", href: "/sales/invoices", label: "Invoices & SI", icon: "receipt", perm: ["sales.invoices.manage"] },
+
   { section: "Administration", href: "/admin/users", label: "Users", icon: "users", perm: ["admin.users.view"], mobile: 7 },
   { section: "Administration", href: "/admin/roles", label: "Roles & permissions", icon: "key", perm: ["admin.roles.manage", "admin.users.view"] },
   // Everyone internal can READ the directory (org.view), but only people who look after it get the menu item.
   { section: "Administration", href: "/admin/org", label: "Organization", icon: "org", perm: ["admin.org.manage", "employees.manage", "admin.users.view", "readonly.all"] },
   { section: "Administration", href: "/admin/settings", label: "Settings", icon: "settings", perm: ["admin.settings.manage", "admin.security.manage", "academy.admin"], mobile: 8 },
   { section: "Administration", href: "/admin/audit", label: "Audit log", icon: "audit", perm: ["audit.view"] },
-  { section: "Administration", href: "/admin/import", label: "Import data", icon: "import", perm: ["employees.manage", "admin.org.manage", "inventory.products.manage", "inventory.receive"] },
+  { section: "Administration", href: "/admin/import", label: "Import data", icon: "import", perm: ["employees.manage", "admin.org.manage", "inventory.products.manage", "inventory.receive", "sales.customers.manage", "sales.pricing.manage"] },
 
   { section: "", href: "/account", label: "My account", icon: "user", mobile: 5 },
 ];
 
 /** Modules planned in docs/MODULES.md, shown as "coming soon" to administrators only. */
 export const UPCOMING_MODULES = [
-  { slug: "sales", label: "Sales & CRM", phase: "3" },
-  { slug: "orders", label: "Orders & e-commerce", phase: "3" },
   { slug: "procurement", label: "Procurement", phase: "4" },
   { slug: "accounting", label: "Accounting & finance", phase: "5" },
   { slug: "command-center", label: "CEO Command Center", phase: "6" },
@@ -98,6 +107,7 @@ export const trainingTabs = (perms: ReadonlySet<string>, academyRole: UserRole |
 export const GROUPED: Record<string, { label: string; icon: IconName }> = {
   Training: { label: "Training", icon: "book" },
   Inventory: { label: "Inventory", icon: "box" },
+  Sales: { label: "Sales", icon: "cart" },
 };
 
 export function buildNav(perms: ReadonlySet<string>, academyRole: UserRole | null): { sections: NavSection[]; mobile: NavItem[] } {

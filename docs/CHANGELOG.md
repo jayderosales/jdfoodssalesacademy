@@ -1,5 +1,16 @@
 # Changelog
 
+## 2026-11-26 — Phase 3: sales, CRM and online shop
+- **Public landing page** at `/` and **online shop** at `/shop`: catalog by brand and category with search, product pages, cart, one-page checkout with no account needed, order page with payment instructions and reference entry, and order tracking by order number + mobile. Guests pay SRP; signed-in customers see their price list.
+- **Customers** with price lists (Retail = SRP, Regular, Corporate, Distributor, Reseller), customer-specific prices, contacts, addresses, credit terms and limit, on-hold flag, opening balance, and a 360 page (owes, overdue, orders, payments, activity).
+- **CRM**: leads pipeline board (new → won/lost, lost needs a reason), convert lead to customer, calls/messages/tasks, and **field visits with GPS check-in**.
+- **Sales orders** from every channel in one pipeline. Stock is **reserved (FEFO) when placed** and **deducted only at "Ready for pickup"**, which the database allows only when the order is paid or credit-approved. Discounts need permission. Credit orders over the limit, overdue or on hold go to the CEO.
+- **Payments**: bank transfer, GCash, Maya, cash or cheque. Customers can send their reference from the order page. Finance confirms, and whoever recorded a payment can't confirm it. PayMongo checkout and webhook are built and switched off until the keys are set.
+- **Fulfilment board** (to pack → packing → waiting for courier → with courier), pick list by lot and bin, courier and tracking number (the customer pays the courier), delivered, and returns into a non-sellable RETURNS bin.
+- **Billing invoices** issued at release, plus an **official SI register** (booklets) with duplicate blocking and alerts for skipped numbers, numbers outside any booklet, and invoices without an SI.
+- Unpaid shop orders auto-cancel after 48 hours (setting) and free their stock. **Settings → Online shop** holds the payment instructions. Products get a shop description and photo link.
+- 271 unit/DB tests (20 new sales DB tests, 13 new unit tests). Migrations 20261204000001–02 applied to Supabase.
+
 ## 2026-11-26 — Phase 2: products, inventory & warehouse
 - **Product master**: 393 SKUs loaded from the May 2026 SRP list (5 brands, 34 categories, 18 pre-order). Units and conversions, barcodes, bundles, shelf life, FDA CPR fields. The Academy's training "products" table is now `academy_products`.
 - **Product cost and price editing**: cost card on each product page and a bulk **Costs & prices** sheet (SRP + cost, margin, changed cells highlighted). Changing cost while stock is on hand is a revaluation: reason required, logged with the value difference.

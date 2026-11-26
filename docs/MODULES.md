@@ -10,7 +10,7 @@ Status: **not started** / **in progress** / **done**. Phase numbers follow the a
 | 4 | Finance | not started | 5 | Budgets, cash forecast, debt, ratios, scenarios, credit, capex |
 | 5 | HRIS | in progress | 1a, 9 | Basic employee profile + reporting line done (1a); full HRIS in Phase 9 |
 | 6 | Payroll | not started | 9 | |
-| 7 | Sales & CRM | not started | 3a | |
+| 7 | Sales & CRM | built (Phase 3) | 3 | Customers, price lists, customer prices, leads, activities + GPS visits, orders, credit check, payments, fulfilment, invoices + SI register. Targets and commissions later |
 | 8 | Client portal | not started | 7 | Incl. Business Growth Center |
 | 9 | Inventory | built (Phase 2) | 2 | Products, costs/prices, ledger, batches/QA, receipts, transfers, adjustments, counts, reorder, scan |
 | 10 | Procurement | not started | 4 | Incl. suppliers, importation, landed cost |
@@ -22,7 +22,7 @@ Status: **not started** / **in progress** / **done**. Phase numbers follow the a
 | 16 | Training / Academy | in progress | existing, 11b | Sales Academy Phases 1–3 done (paths, lessons, quizzes, AI roleplay, reviews); Phase 4 reports partly built. Customer/distributor/public courses, certificates, competency matrix in 11b. |
 | 17 | Contracts | not started | 11c | Simple supplier contracts in 4 |
 | 18 | Distributor portal | not started | 7 | |
-| 19 | E-commerce | not started | 3b | Shopify + marketplace imports; portal checkout in 7 |
+| 19 | E-commerce | built (Phase 3) | 3 | Own shop + landing page with guest checkout, manual payment confirmation, PayMongo ready. Shopify sync and marketplace imports later |
 | 20 | Document encoding (AI) | not started | 12 | |
 | 21 | Project management | not started | 11d | Incl. OKRs, meetings |
 | 22 | SOP management | not started | 11c | |
