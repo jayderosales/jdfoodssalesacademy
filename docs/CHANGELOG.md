@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026-11-26 — Manufacturing: daily production report
+- New **Manufacturing** tab (sidebar) for the production supervisor: start the day's report (date, plant, shift/line), add what was made (finished good, quantity and unit, lot no., mfg date, expiry), then **Submit**, which locks it. No approval step.
+- Expiry defaults to mfg date + the product's shelf life. Only finished goods can be reported, and the same product + lot can't be reported twice. Photos can be attached.
+- The overview shows output by product for today and any date range (default: last 7 days), plus your reports not yet submitted.
+- Record only for now (owner's choice): inventory isn't changed. Finished goods still go into stock through Inventory → Receipts.
+- Who sees it: Manufacturing personnel, Operations manager and COO can report; QA can view. The CEO and auditors see everything.
+- 317 tests (3 new production DB tests). Migration 20261208000001 applied to Supabase.
+
 ## 2026-11-26 — Scan a document (photo encoding)
 - **Take a photo, check, save.** New **Scan a document** page (sidebar, and buttons on Receipts, Transfers, Supplier invoices, Payments and petty cash). The AI reads the photo or PDF into a form next to the picture. Every field can be corrected, names are matched to products, suppliers, customers and locations, and nothing is saved until a person confirms. A scan never posts, approves or moves stock by itself.
 - **Inventory:** a *supplier delivery slip* becomes a receipt against its PO (quantities, lots and expiry prefilled; lots go to QA quarantine) or a draft stock receipt when there's no PO. *Goods sent between sites* becomes a draft transfer that picks released stock earliest-expiry first (or the lot on the slip).

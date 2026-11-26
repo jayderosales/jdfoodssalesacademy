@@ -14,7 +14,7 @@ Status: **not started** / **in progress** / **done**. Phase numbers follow the a
 | 8 | Client portal | not started | 7 | Incl. Business Growth Center |
 | 9 | Inventory | built (Phase 2) | 2 | Products, costs/prices, ledger, batches/QA, receipts, transfers, adjustments, counts, reorder, scan |
 | 10 | Procurement | built (Phase 4) | 4 | Suppliers, prices, requests, POs (CEO approval), receiving against PO, supplier invoices + 3-way match, performance. Local suppliers only; no landed cost yet |
-| 11 | Manufacturing | not started | 8 | |
+| 11 | Manufacturing | in progress | 8 | **Daily production report** built (record only: output per product + lot, locked on submit). Recipes/BOM, work orders, material issue, finished-goods receipt, rejects and manpower in Phase 8. |
 | 12 | Quality & FDA | not started | 8 | Simple QA release in 2/4 |
 | 13 | Logistics | not started | 3b, 10 | Courier-only (no own fleet). Courier booking + POD in 3b; courier API connectors and delivery costing in 10 |
 | 14 | Marketing | not started | 11a | |

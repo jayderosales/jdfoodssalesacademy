@@ -43,6 +43,10 @@ Answer inline under each question (or in chat). Answered questions move to the b
 - **Transmittal forms:** send a photo of the current transmittal / delivery slip formats so the reading can be checked against real examples.
 - **Petty cash returns:** unspent petty cash returned in cash isn't recorded yet (liquidation shows the balance left). Confirm how returns are handled today.
 
+## Manufacturing
+- **Lot number format:** how are lots numbered today (e.g. date + line + batch)? The report accepts any text for now and can suggest the format once known.
+- **Next step:** when should production reports start moving stock (finished goods in, materials out)? That needs the recipe/BOM per product.
+
 ## Other open items (not blocking Phase 1)
 
 - **Supabase Auth settings to turn on** (dashboard → Authentication): leaked-password protection (advisor warning); session inactivity timeout / time-box (Pro plan). TOTP MFA is on by default.

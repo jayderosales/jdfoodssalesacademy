@@ -64,6 +64,8 @@ export const PERMISSIONS = {
   "bank.reconcile": { module: "accounting", restricted: false },
   "finance.reports.view": { module: "accounting", restricted: false },
   "transmittals.receive": { module: "accounting", restricted: false },
+  "production.report": { module: "manufacturing", restricted: false },
+  "production.view": { module: "manufacturing", restricted: false },
 } as const satisfies Record<string, { module: string; restricted: boolean }>;
 
 export type Permission = keyof typeof PERMISSIONS;
@@ -82,6 +84,7 @@ export const MODULE_LABELS: Record<string, string> = {
   sales: "Sales, CRM & shop",
   procurement: "Procurement",
   accounting: "Accounting & finance",
+  manufacturing: "Manufacturing",
 };
 
 /** Built-in role codes (public.roles where is_system). */

@@ -5,7 +5,7 @@ export type IconName =
   | "home" | "book" | "quiz" | "chat" | "user" | "users" | "team" | "review"
   | "content" | "chart" | "settings" | "audit" | "org" | "key" | "link" | "soon" | "approve" | "wallet" | "bell" | "import"
   | "box" | "tag" | "layers" | "truck" | "inbox" | "sliders" | "clipboard" | "scan" | "gauge"
-  | "cart" | "target" | "receipt" | "pin";
+  | "cart" | "target" | "receipt" | "pin" | "factory";
 
 export interface NavItem {
   href: string;
@@ -62,6 +62,7 @@ export const MODULES: ModuleEntry[] = [
   { section: "Inventory", href: "/inventory/reorder", label: "Reorder", icon: "chart", perm: ["inventory.reorder.manage", "inventory.view_cost"] },
   { section: "Inventory", href: "/inventory/scan", label: "Scan", icon: "scan", perm: ["inventory.view"] },
 
+  { section: "Manufacturing", href: "/manufacturing", label: "Daily production", icon: "clipboard", perm: ["production.report", "production.view", "readonly.all"], match: ["/manufacturing"] },
   { section: "Sales", href: "/sales", label: "Overview", icon: "gauge", perm: ["sales.view", "sales.fulfil", "sales.payments.confirm"], mobile: 2 },
   { section: "Sales", href: "/sales/orders", label: "Orders", icon: "cart", perm: ["sales.view", "sales.orders.create"] },
   { section: "Sales", href: "/sales/customers", label: "Customers", icon: "users", perm: ["sales.view", "sales.customers.manage"] },
@@ -126,6 +127,7 @@ export const GROUPED: Record<string, { label: string; icon: IconName }> = {
   Sales: { label: "Sales", icon: "cart" },
   Procurement: { label: "Procurement", icon: "truck" },
   Accounting: { label: "Accounting", icon: "wallet" },
+  Manufacturing: { label: "Manufacturing", icon: "factory" },
 };
 
 export function buildNav(perms: ReadonlySet<string>, academyRole: UserRole | null): { sections: NavSection[]; mobile: NavItem[] } {

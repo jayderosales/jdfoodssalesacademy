@@ -98,3 +98,8 @@ Format: date — decision — why — alternatives considered.
 - **Why:** CLAUDE.md §5.12 (AI proposes, humans approve). Reusing the normal drafts means approvals, QA quarantine, 3-way match and payment confirmation all still apply.
 - **Also:** Expense receipts either liquidate released petty cash (already posted at release, so no second entry) or become a draft manual journal for the CEO. Duplicate receipts (same store + OR no.) are blocked in the database. Document transmittals must be received by someone other than the sender.
 - **Alternatives:** Auto-saving what the AI reads (no human check, against §5.12); a separate OCR service (another vendor; Claude already approved and reads handwriting/Taglish).
+
+## 2026-11-26 — Daily production report first, record only
+- **Decision:** Manufacturing starts with a daily production report: output per product and lot, submitted by the supervisor and locked on submit (no approval). It doesn't move stock. It emits a `production.reported` event, so the full manufacturing phase can later receive finished goods and issue materials from it.
+- **Why:** Owner's answers: record only for now, output per product + lot, supervisor submits and it's final. Keeps the stock ledger and costing unchanged until recipes and material use are defined.
+- **Alternatives:** Posting output to stock now (finished goods would be costed without material usage); an approval step (slower, not wanted).
