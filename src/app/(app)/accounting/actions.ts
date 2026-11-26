@@ -272,3 +272,34 @@ export async function matchLine(_: FormState, form: FormData): Promise<FormState
   const jl = form.get("journal_line_id");
   return rpc("bank_match", { p_statement_line: uuid.parse(form.get("id")), p_journal_line: jl ? uuid.parse(jl) : null }, [`/accounting/banks/${account}`], jl ? "Matched." : "Unmatched.");
 }
+
+// ================================================================ disbursements
+/** A company-paid expense typed in (no photo): becomes a draft journal (expense + input VAT / cash) for the CEO. */
+export async function recordExpense(_: FormState, form: FormData): Promise<FormState> {
+  await requirePermission("accounting.journals.create");
+  const v = z
+    .object({
+      receipt_date: date,
+      vendor_name: z.string().trim().min(2, "Enter the store or vendor.").max(160),
+      vendor_tin: text(30),
+      receipt_no: text(60),
+      amount: z.preprocess((x) => parseMoney(String(x ?? "")), z.string({ message: "Enter the amount paid." })),
+      vat_amount: z.preprocess((x) => parseMoney(String(x || "0")), z.string({ message: "Check the VAT amount." })),
+      expense_account_id: z.string().uuid({ message: "Choose what the expense is for." }),
+      paid_from: z.string().uuid({ message: "Choose the account it was paid from." }),
+      description: text(300),
+    })
+    .safeParse(Object.fromEntries(form));
+  if (!v.success) return { error: v.error.issues[0].message };
+  if (Number(v.data.amount) <= 0) return { error: "Enter the amount paid." };
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc("record_expense_receipt", {
+    p_date: v.data.receipt_date, p_vendor: v.data.vendor_name, p_tin: v.data.vendor_tin, p_receipt_no: v.data.receipt_no,
+    p_amount: v.data.amount, p_vat: v.data.vat_amount, p_expense_account: v.data.expense_account_id, p_description: v.data.description,
+    p_petty_cash: null, p_paid_from: v.data.paid_from, p_scan: null,
+  });
+  if (error) return fail(error);
+  const { data: r } = await supabase.from("expense_receipts").select("journal_entry_id").eq("id", data as string).single();
+  revalidatePath("/accounting/disbursements");
+  redirect(`/accounting/journals/${(r as { journal_entry_id: string }).journal_entry_id}`);
+}

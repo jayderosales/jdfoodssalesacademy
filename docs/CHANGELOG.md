@@ -11,6 +11,13 @@
 - **Morning summary** at 7:00 Manila: yesterday's sales, month and year to date vs target, collections, overdue customers, bills due, approvals, production and stock alerts. Shows in the notification bell now and arrives by email once email (Resend) is switched on.
 - 323 tests (3 new CEO-report DB tests). Migration 20261209000001 applied to Supabase.
 
+## 2026-11-26 — Fulfilment: incomplete orders; Accounting: disbursements
+- **Fulfilment → Incomplete — waiting for stock** (new first column): paid or credit-approved orders that still miss items (usually pre-orders, or stock that ran out) move out of To pack / Packing. Each card shows "SKU short N (available now: M)". The normal button appears as soon as available stock covers the shortage, and stock is reserved automatically at Ready for pickup.
+- **Products short** card under the board: what all incomplete orders still need per product, what's available, and what's still to make or buy.
+- **Accounting → Disbursements** (new tab): all money out for a period (default this month) in one list: paid supplier payments, petty cash released, and company-paid expenses. Shows totals by type and by account paid from, status (expense journals waiting for the CEO are flagged), and links to the payment, request or journal (plus the receipt photo).
+- Record a company-paid expense from Disbursements: **Scan a receipt** (the AI reads it), or **Record an expense** by typing it. Both create a draft journal (expense + input VAT / cash) for the CEO.
+- 320 tests (3 new shortage unit tests). No database change.
+
 ## 2026-11-26 — Manufacturing: daily production report
 - New **Manufacturing** tab (sidebar) for the production supervisor: start the day's report (date, plant, shift/line), add what was made (finished good, quantity and unit, lot no., mfg date, expiry), then **Submit**, which locks it. No approval step.
 - Expiry defaults to mfg date + the product's shelf life. Only finished goods can be reported, and the same product + lot can't be reported twice. Photos can be attached.

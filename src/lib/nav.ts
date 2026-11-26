@@ -91,6 +91,7 @@ export const MODULES: ModuleEntry[] = [
   { section: "Accounting", href: "/accounting/reports", label: "Reports", icon: "chart", perm: ["finance.reports.view"] },
   { section: "Accounting", href: "/accounting/receivables", label: "Receivables", icon: "users", perm: ["ar.manage", "accounting.view"] },
   { section: "Accounting", href: "/accounting/payables", label: "Payables", icon: "wallet", perm: ["ap.payments.create", "accounting.view"] },
+  { section: "Accounting", href: "/accounting/disbursements", label: "Disbursements", icon: "wallet", perm: ["accounting.view", "ap.payments.create", "accounting.journals.create"] },
   { section: "Accounting", href: "/accounting/banks", label: "Banks", icon: "layers", perm: ["bank.reconcile", "accounting.view"] },
   { section: "Accounting", href: "/accounting/journals", label: "Journals", icon: "clipboard", perm: ["accounting.view", "accounting.journals.create"] },
   { section: "Accounting", href: "/accounting/ledger", label: "Ledger", icon: "receipt", perm: ["accounting.view"] },
