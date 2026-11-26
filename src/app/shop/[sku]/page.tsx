@@ -64,7 +64,7 @@ export default async function ProductPage({ params }: { params: Promise<{ sku: s
           )}
 
           <p className="text-3xl font-bold">{formatMoney(price)}</p>
-          {price !== p.srp && <p className="text-sm text-green-700">Your price (SRP {formatMoney(p.srp)})</p>}
+          {Number(price) !== Number(p.srp) && <p className="text-sm text-green-700">Your price (SRP {formatMoney(p.srp)})</p>}
           {p.pre_order && <p className="rounded-lg bg-amber-50 p-3 text-sm text-amber-900">Pre-order item: we&apos;ll confirm the lead time after you order.</p>}
           {p.description && <p className="whitespace-pre-line text-sm">{p.description}</p>}
           <AddToCart key={p.sku} item={{ sku: p.sku, name: p.name, price, size: p.size_label }} disabled={!p.in_stock} />
